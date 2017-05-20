@@ -1,18 +1,13 @@
 package halamish.reem.remember;
 
 import android.annotation.SuppressLint;
-import android.provider.Settings.Secure;
-
 import android.content.Context;
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
+import android.provider.Settings.Secure;
 
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import static java.security.AccessController.getContext;
 
 /**
  * Created by Re'em on 5/19/2017.
@@ -47,7 +42,7 @@ public class LocalDB {
 
     public void setUserName(String newUsername) {
         LocalStorage.getManager().putString(KEY_USERNAME, newUsername);
-        Const.username = newUsername;
+        Util.username = newUsername;
     }
 
 

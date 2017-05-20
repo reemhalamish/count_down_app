@@ -6,9 +6,9 @@ import android.util.Log;
 
 import com.google.firebase.FirebaseApp;
 
+import halamish.reem.remember.firebase.db.FirebaseDbManager;
 import halamish.reem.remember.firebase.notification.FirebaseTokenService;
 import halamish.reem.remember.firebase.user.FirebaseUserManager;
-import halamish.reem.remember.firebase.db.FirebaseDbManager;
 
 /**
  * Created by Re'em on 5/17/2017.
@@ -33,7 +33,7 @@ public class RememberApp extends Application {
         Log.d(TAG, "before init");
         LocalStorage.init(context);
         LocalDB.init(context);
-        Const.username = LocalDB.getManager().getUserName();
+        Util.username = LocalDB.getManager().getUserName();
 
         FirebaseApp.initializeApp(context);
         FirebaseUserManager.init(context);

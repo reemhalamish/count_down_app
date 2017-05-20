@@ -5,8 +5,8 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
-import halamish.reem.remember.Const;
 import halamish.reem.remember.LocalDB;
+import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.db.FirebaseDbManager;
 
 /**
@@ -22,7 +22,7 @@ public class FirebaseTokenService extends FirebaseInstanceIdService {
     }
 
     public static void updateTokenInServer() {
-        String username = Const.username;
+        String username = Util.username;
         String phoneId = LocalDB.getManager().getPhoneConstId();
         String firebaseId = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, firebaseId);

@@ -14,21 +14,19 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import halamish.reem.remember.Const;
 import halamish.reem.remember.LocalDB;
+import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 import halamish.reem.remember.firebase.db.entity.User;
 import lombok.Getter;
 
 import static halamish.reem.remember.firebase.db.Helper.checkInternet;
-import static halamish.reem.remember.firebase.db.Helper.toFirebaseBranch;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestDeleteEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestNewEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUpdateEventUpload;
@@ -102,7 +100,7 @@ public class FirebaseDbManager {
     }
 
     public void requestUserDownload(@Nullable OnDbReadyCallback<User> callback) {
-        String username = Const.username;
+        String username = Util.username;
         if (username == null) {
             username = db.child(BRANCH_USERS).push().getKey();
             LocalDB.getManager().setUserName(username);
@@ -110,13 +108,13 @@ public class FirebaseDbManager {
 
         db
                 .child(BRANCH_USERS)
-                .child(Const.username)
+                .child(Util.username)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Const.user = dataSnapshot.getValue(User.class);
+                Util.user = dataSnapshot.getValue(User.class);
                 if (callback != null) {
-                    callback.onDatabaseFinishedWorking(Const.user);
+                    callback.onDatabaseFinishedWorking(Util.user);
                 }
             }
 
@@ -158,7 +156,7 @@ public class FirebaseDbManager {
         if (noInternet_ThanHandle()) return;
         if (eventToUpload == null || callback == null) return;
 
-        if (! eventToUpload.getCreator().equals(Const.username)) {
+        if (! eventToUpload.getCreator().equals(Util.username)) {
             throw new FirebaseDbException.NotEventCreator();
         }
 
@@ -170,7 +168,7 @@ public class FirebaseDbManager {
             throws FirebaseDbException.NotEventCreator
     {
         if (toUpdload == null || callback == null) return;
-        if (! toUpdload.getCreator().equals(Const.username)) {
+        if (! toUpdload.getCreator().equals(Util.username)) {
             throw new FirebaseDbException.NotEventCreator();
         }
 
@@ -208,7 +206,7 @@ public class FirebaseDbManager {
         if (eventId == null || callback == null) return;
 
         reqDownloadEvent(eventId, event -> {
-            if (event.getCreator().equals(Const.username)) {
+            if (event.getCreator().equals(Util.username)) {
                 uploadToDb(db, requestDeleteEventUpload(eventId, event.weeklyAlertDay()), () -> callback.onDatabaseFinishedWorking(null));
             } else {
                 callback.onError(new FirebaseDbException.NotEventCreator());
@@ -406,16 +404,16 @@ public class FirebaseDbManager {
     public void requestDownloadAllEventsUserIsSubscribedTo(String username, OnDbReadyCallback<List<Event>> callback) {
         if (noInternet_ThanHandle()) return;
 
-        if (Const.user == null) return;
+        if (Util.user == null) return;
 
-        if (Const.user.eventSubscribed == null || Const.user.eventSubscribed.size() == 0) {
+        if (Util.user.eventSubscribed == null || Util.user.eventSubscribed.size() == 0) {
             // user has no subscribed events.
             callback.onDatabaseFinishedWorking(new ArrayList<>());
             return;
         }
 
 
-        Map<String, Boolean> allEvents = Const.user.eventSubscribed;
+        Map<String, Boolean> allEvents = Util.user.eventSubscribed;
 
         Set<String> eventsNoLongerExist = new HashSet<>(allEvents.keySet());
         List<Event> retVal = new ArrayList<>();

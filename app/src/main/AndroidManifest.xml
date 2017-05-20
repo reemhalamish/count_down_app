@@ -19,6 +19,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity_create_event.CreateEventActivity">
+
+        </activity>
+
         <service
             android:name=".firebase.notification.FirebaseMsgService">
             <intent-filter>

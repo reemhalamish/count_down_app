@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import halamish.reem.remember.Const;
+import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 
@@ -54,10 +54,10 @@ class UpdatesGenerator {
         uploads.put(toFirebaseBranch(BRANCH_EVENTS, eventUniqueString), eventToUpload);
         switch (policy) {
             case NOTIFY_DAILY:
-                uploads.put(toFirebaseBranch(BRANCH_ALERTS, BRANCH_ALERTS_DAILY, eventUniqueString, Const.username), true);
+                uploads.put(toFirebaseBranch(BRANCH_ALERTS, BRANCH_ALERTS_DAILY, eventUniqueString, Util.username), true);
                 break;
             case NOTIFY_WEEKLY:
-                uploads.put(toFirebaseBranch(BRANCH_ALERTS, eventToUpload.weeklyAlertDay(), eventUniqueString, Const.username), true);
+                uploads.put(toFirebaseBranch(BRANCH_ALERTS, eventToUpload.weeklyAlertDay(), eventUniqueString, Util.username), true);
                 break;
             case DONT_NOTIFY: break;
         }

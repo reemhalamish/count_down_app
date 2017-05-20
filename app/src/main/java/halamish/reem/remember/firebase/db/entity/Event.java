@@ -2,24 +2,17 @@ package halamish.reem.remember.firebase.db.entity;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.lang.reflect.ParameterizedType;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -31,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @IgnoreExtraProperties
-public class Event  {
+public class Event implements Serializable {
     static final DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US);
 
     @Getter @Setter String date;

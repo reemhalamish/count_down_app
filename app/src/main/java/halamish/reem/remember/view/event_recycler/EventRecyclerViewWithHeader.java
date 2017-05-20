@@ -104,7 +104,7 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
 
     public void start(List<Event> data, boolean shouldStarVisible, boolean shouldStarBeOn, EventAdapter.OnStarPress callbacks) {
         List<Event> copy = new ArrayList<>(data);
-        mAdapter = new EventAdapter(data, shouldStarBeOn, shouldStarVisible, generateCallbacks(callbacks));
+        mAdapter = new EventAdapter(data, shouldStarBeOn, shouldStarVisible, callbacks);
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
@@ -132,68 +132,11 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
         updateVisibility();
     }
 
-    /**
-     * generate new callbacks in case the callbacks are asking to remove items if user pressed the star
-     *
-     * because, maybe the item removal will cause the recycler view to have 0 rows,
-     * so we should display the "nothing here" text instead
-     *
-     * @param originalCallbacks
-     * @return
-     */
-    private EventAdapter.OnStarPress generateCallbacks(EventAdapter.OnStarPress originalCallbacks) {
-
-        if (originalCallbacks == null
-                ||
-                !(
-                        originalCallbacks.shouldRemoveWhenStarOffThanPressed()
-                                ||
-                                originalCallbacks.shouldRemoveWhenStarOnThanPressed()
-                )
-                ) {
-            // no removing will happen, original callbacks are good
-            return originalCallbacks;
-        }
-
-        // removing will happen. we will need to
-        return new EventAdapter.OnStarPress() {
-            boolean isRemovingWhenStarOnPressedOf = originalCallbacks.shouldRemoveWhenStarOnThanPressed();
-            boolean isRemovingWhenStarOffPressedOn = originalCallbacks.shouldRemoveWhenStarOffThanPressed();
-
-            @Override
-            public void onStarOnPressedOff(Event event) {
-                if (isRemovingWhenStarOnPressedOf) {
-                    updateVisibility();
-                }
-                originalCallbacks.onStarOnPressedOff(event);
-            }
-
-            @Override
-            public void onStarOffPressedOn(Event event) {
-                if (isRemovingWhenStarOffPressedOn) {
-                    updateVisibility();
-                }
-                originalCallbacks.onStarOffPressedOn(event);
-            }
-
-            @Override
-            public void onPressView(Event event) {
-                originalCallbacks.onPressView(event);
-            }
-
-            @Override
-            public boolean shouldRemoveWhenStarOnThanPressed() {
-                return isRemovingWhenStarOnPressedOf;
-            }
-
-            @Override
-            public boolean shouldRemoveWhenStarOffThanPressed() {
-                return isRemovingWhenStarOffPressedOn;
-            }
-        };
-    }
-
     public void removeAt(int indexInHot) {
         mAdapter.removeAt(indexInHot);
+    }
+
+    public void remove(Event event) {
+        mAdapter.remove(event);
     }
 }

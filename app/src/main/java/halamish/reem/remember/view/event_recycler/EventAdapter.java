@@ -1,18 +1,14 @@
 package halamish.reem.remember.view.event_recycler;
 
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.List;
 
 import halamish.reem.remember.R;
 import halamish.reem.remember.firebase.db.entity.Event;
-import halamish.reem.remember.view.CountDownView;
-import halamish.reem.remember.view.MaterialCircleImageView;
 import lombok.AllArgsConstructor;
 
 /**
@@ -22,14 +18,15 @@ import lombok.AllArgsConstructor;
  * controls the ViewHolder
  */
 
+@SuppressLint("NewApi")
+@SuppressWarnings("JavaDoc")
 @AllArgsConstructor
 public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
+
     public interface OnStarPress {
-        void onPressView(Event event);
+        default void onPressView(Event event){}
         default void onStarOnPressedOff(Event event) {}
         default void onStarOffPressedOn(Event event) {}
-        default boolean shouldRemoveWhenStarOnThanPressed() {return false;}
-        default boolean shouldRemoveWhenStarOffThanPressed() {return false;}
     }
 
 
@@ -60,15 +57,8 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
             holder.ivStar.setOnClickListener(view -> {
                 Event eventWhenPressed = events.get(holder.getAdapterPosition());
                 if (holder.starStateOn) {
-                    if (callbacks.shouldRemoveWhenStarOnThanPressed()) {
-                        removeAt(holder.getAdapterPosition());
-                    }
                     callbacks.onStarOnPressedOff(eventWhenPressed);
-
                 } else {
-                    if (callbacks.shouldRemoveWhenStarOffThanPressed()) {
-                        removeAt(holder.getAdapterPosition());
-                    }
                         callbacks.onStarOffPressedOn(eventWhenPressed);
                 }
 
@@ -88,17 +78,26 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
         return events.size();
     }
 
+
+    /**
+     * removes the event from the list
+     * @param event
+     */
+    void remove(Event event) {
+        removeAt(events.indexOf(event));
+    }
+
     /**
      * removes the object in that position
      * @param position
      */
-    public void removeAt(int position) {
+    void removeAt(int position) {
         events.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, events.size());
     }
 
-    public void addEvent(Event toAdd) {
+    void addEvent(Event toAdd) {
         events.add(0, toAdd);
         notifyItemInserted(0);
     }

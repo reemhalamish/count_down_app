@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:clipToPadding="false"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    >
+
+    <EditText
+        android:id="@+id/edt_create_title"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Title (what is the event?)"
+        android:maxLines="1"
+        android:layout_marginBottom="16dp"
+        android:textSize="@dimen/txt_large"
+        android:textColorHint="@color/divider"
+        android:textColor="@color/secondary_text"
+
+        />
+
+    <ImageView
+        android:id="@+id/iv_create_add_picture"
+
+        android:layout_width="135dp"
+        android:layout_height="180dp"
+        android:background="@drawable/rect_portrait"
+        app:srcCompat="@drawable/ic_add_a_photo_black_24dp"
+        android:tint="@color/purple500"
+        android:layout_alignParentEnd="true"
+        android:scaleType="centerCrop"
+        android:padding="65dp"
+        android:elevation="5dp"
+        android:layout_below="@+id/edt_create_title"
+
+        />
+
+    <EditText
+        android:id="@+id/edt_create_body"
+        android:layout_width="match_parent"
+        android:layout_height="186.5dp"
+        android:ellipsize="end"
+        android:textColorHint="@color/divider"
+        android:textColor="@color/secondary_text"
+
+        android:hint="Want to describe your countdown a little bit more?\n\nIt will help users relate to your event!"
+
+        android:layout_toStartOf="@+id/iv_create_add_picture"
+        android:layout_alignTop="@+id/iv_create_add_picture"
+
+        android:gravity="start|top"
+
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:textSize="@dimen/txt_normal"
+        />
+
+    <View
+        android:id="@+id/v_create_space_1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_below="@+id/edt_create_body"/>
+
+    <ImageView
+        android:id="@+id/iv_create_icon_date"
+
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        app:srcCompat="@drawable/ic_today_black_24dp"
+        android:layout_below="@+id/v_create_space_1"
+        android:layout_margin="16dp"
+        android:tint="@color/primary"
+        />
+
+    <TextView
+        android:id="@+id/tv_create_date"
+
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:textSize="@dimen/txt_normal"
+        android:text="21/08/2017"
+
+        android:layout_toEndOf="@+id/iv_create_icon_date"
+        android:layout_alignTop="@+id/iv_create_icon_date"
+        android:layout_alignBottom="@+id/iv_create_icon_date"
+        android:gravity="center"
+        android:textColor="@color/divider"
+        />
+
+    <ImageView
+        android:id="@+id/iv_create_icon_time"
+
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        app:srcCompat="@drawable/ic_access_time_black_24dp"
+        android:layout_below="@+id/iv_create_icon_date"
+
+        android:tint="@color/primary"
+        android:layout_marginTop="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_create_time"
+
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:textSize="@dimen/txt_normal"
+        android:text="21:00"
+
+        android:layout_toEndOf="@+id/iv_create_icon_time"
+        android:layout_alignTop="@+id/iv_create_icon_time"
+        android:layout_alignBottom="@+id/iv_create_icon_time"
+        android:gravity="center"
+        android:textColor="@color/divider"
+        />
+
+    <View
+        android:id="@+id/v_create_space_2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_below="@+id/tv_create_time"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        />
+
+    <ImageView
+        android:id="@+id/iv_create_icon_ntfc"
+
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        app:srcCompat="@drawable/ic_vibration_black_24dp"
+        android:layout_below="@+id/v_create_space_2"
+
+        android:tint="@color/primary"
+        android:layout_marginTop="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_create_ntfc"
+
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:textSize="@dimen/txt_normal"
+        android:text="every day"
+
+        android:layout_toEndOf="@+id/iv_create_icon_ntfc"
+        android:layout_alignTop="@+id/iv_create_icon_ntfc"
+        android:layout_alignBottom="@+id/iv_create_icon_ntfc"
+        android:gravity="center"
+        android:textColor="@color/divider"
+        />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        app:srcCompat="@drawable/ic_save_black_24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        app:fabSize="normal"
+        app:backgroundTint="@color/purple500"
+        android:tint="@android:color/white"
+        />
+
+</RelativeLayout>
