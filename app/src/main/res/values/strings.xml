@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Remember</string>
+    <string name="days">days</string>
+    <string name="hours">hours!</string>
+    <string name="before">before</string>
+    <string name="in">in</string>
+    <string name="plus99" translatable="false">99+</string>
+</resources>

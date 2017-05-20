@@ -1,0 +1,64 @@
+
+
+      |=====================|
+      |                     |
+      |  THE DB STRUCTURE:  |
+      |                     |
+      |=====================|
+
+
+
+
+ /event
+      /{eventUniqueId}
+          /date : String   ---> format yyyy/MM/dd HH:mm
+          /title : String
+          /body : String
+          /creator : String ---> the user that created this event
+          /weeklyAlertDay : int  ---> ranges [1,7]
+          /isPublic : boolean
+          /subscribersAmount : int
+          /uniqueId : {event1uniqueId}
+          /picturePathHost : {firebase storage picture path
+      ...
+
+
+ /user               ---> user_unique_id starts by it's const phone id.
+                          whenever connecting with google,
+                          it will be his email so user can add phones.
+
+      /{user1Email}
+          /phones
+               /{user1phone1constId} : {user1phone1firebaseRecognizer}
+               /{user1phone2constId} : {user1phone2firebaseRecognizer}
+               ...
+          /eventSubscribed
+              /event513 : true
+              /event376 : true
+              ...
+      /{user2phoneUniqueId}
+          /eventSubscribed
+              /event1 : true
+              ...
+          /phones
+               /{user2phoneUniqueId} : {user2phoneFirebaseRecognizer}
+               ...
+      ...
+
+
+
+
+ /alert
+      /daily
+          /eventId
+              /userSubscriberid : true
+              ...
+          ...
+
+      /1                ---> there will be 7 of those. one for each day. for weekly alerts
+          /eventId
+              /userSubscriberId : true
+              ...
+          ...
+      ...
+

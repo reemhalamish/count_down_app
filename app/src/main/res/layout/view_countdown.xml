@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="70dp" android:layout_height="wrap_content">
+
+
+    <TextView
+        android:id="@+id/view_countdown_in"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/in"
+        android:textSize="@dimen/txt_small"
+        android:layout_centerHorizontal="true"
+        />
+
+
+    <TextView
+        android:id="@+id/tv_view_countdown_num_days"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="35"
+        android:textSize="@dimen/txt_normal"
+        android:layout_below="@+id/view_countdown_in"
+        android:layout_centerHorizontal="true"
+        />
+
+    <TextView
+        android:id="@+id/view_countdown_days_hours"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/days"
+        android:textSize="@dimen/txt_small"
+        android:layout_below="@+id/tv_view_countdown_num_days"
+        android:layout_centerHorizontal="true"
+        />
+
+
+</RelativeLayout>

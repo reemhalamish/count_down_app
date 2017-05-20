@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="HeaderView">
+        <attr name="android:text" />
+    </declare-styleable>
+    <declare-styleable name="EventRecyclerViewWithHeader">
+        <attr name="headerText" format="string"/>
+        <attr name="nothingText" format="string"/>
+        <attr name="starVisible" format="boolean"/>
+        <attr name="starOn" format="boolean"/>
+        <attr name="editModeNumItems" format="integer"/>
+    </declare-styleable>
+
+</resources>

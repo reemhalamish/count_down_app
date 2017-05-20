@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    >
+
+
+    <ImageView
+        android:id="@+id/v_header_start"
+        android:layout_width="@dimen/view_header_starting"
+        android:layout_height="0dp"
+        android:src="@color/divider"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/tv_header_title"
+        android:layout_alignBottom="@+id/tv_header_title"
+        android:padding="8dp"
+        />
+
+
+    <TextView
+        android:id="@+id/tv_header_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="header title"
+        android:layout_toEndOf="@+id/v_header_start"
+        android:textSize="@dimen/txt_small_header"
+        android:textColor="@color/divider"
+        />
+
+    <!--<ImageView-->
+        <!--android:id="@+id/v_header_end"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:src="@color/divider"-->
+        <!--android:layout_alignTop="@+id/tv_header_title"-->
+        <!--android:layout_alignBottom="@+id/tv_header_title"-->
+        <!--android:padding="8dp"-->
+        <!--android:layout_toEndOf="@+id/tv_header_title"-->
+        <!--/>-->
+
+
+
+</RelativeLayout>

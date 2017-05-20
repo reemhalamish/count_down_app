@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <halamish.reem.remember.view.HeaderView
+        android:id="@+id/view_rcv_with_header_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Segment a"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/view_rcv_with_header_rcv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view_rcv_with_header_header"
+        android:visibility="gone"
+        android:layout_marginBottom="48dp"
+        />
+
+
+    <TextView
+        android:id="@+id/view_rcv_with_header_nothing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nothing in here :("
+        android:layout_below="@+id/view_rcv_with_header_header"
+        android:textColor="@color/divider"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="48dp"
+        android:textSize="@dimen/txt_normal"
+
+        />
+
+</RelativeLayout>
