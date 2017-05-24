@@ -29,6 +29,7 @@
         app:srcCompat="@drawable/ic_add_black_24dp"
         android:tint="#ffffffff"
         app:backgroundTint="@color/accent"
+        android:transitionName="fab"
         app:fabSize="normal" />
 
     <ScrollView

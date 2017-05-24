@@ -5,4 +5,18 @@
     <string name="before">before</string>
     <string name="in">in</string>
     <string name="plus99" translatable="false">99+</string>
+
+
+    <string name="notify_daily">Notify Daily</string>
+    <string name="notify_weekly">Notify weekly</string>
+    <string name="dont_notify">Don\'t Notify</string>
+    <string name="select_notification_timing">Select notification timing!</string>
+    <string name="please_provide_title">Please provide Title!</string>
+    <string name="public_">public</string>
+    <string name="private_">private</string>
+    <string name="wanna_public_event">Do you want your event to  be public?</string>
+    <string name="new_event_created">New Event Created!</string>
+    <string name="something_went_wrong">Something went wrong. Please try again!</string>
+    <string name="ux_prompt_no_internet_slower_bg_data">No internet connectivity! Background Data transfer will be slower</string>
+
 </resources>

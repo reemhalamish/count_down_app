@@ -16,7 +16,7 @@ import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_EVENTS
 import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS;
 import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS_UNMAE_EVENTS;
 import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS_UNMAE_PHONES;
-import static halamish.reem.remember.firebase.db.Helper.toFirebaseBranch;
+import static halamish.reem.remember.firebase.Helper.toFirebaseBranch;
 
 /**
  * Created by Re'em on 5/20/2017.

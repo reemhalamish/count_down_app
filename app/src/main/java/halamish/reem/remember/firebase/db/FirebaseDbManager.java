@@ -20,13 +20,14 @@ import java.util.Map;
 import java.util.Set;
 
 import halamish.reem.remember.LocalDB;
+import halamish.reem.remember.R;
 import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 import halamish.reem.remember.firebase.db.entity.User;
 import lombok.Getter;
 
-import static halamish.reem.remember.firebase.db.Helper.checkInternet;
+import static halamish.reem.remember.firebase.Helper.checkInternet;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestDeleteEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestNewEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUpdateEventUpload;
@@ -84,6 +85,9 @@ public class FirebaseDbManager {
     public interface OnDbReadyCallback<E> extends OnDbError {
         void onDatabaseFinishedWorking(E valueFromFirebase);
     }
+    private static class DoNothingOnDbReady<E> implements OnDbReadyCallback<E> {
+        public void onDatabaseFinishedWorking(E valueFromFirebase) {}
+    }
 
     @Getter private static FirebaseDbManager manager;
     private DatabaseReference db;
@@ -99,7 +103,9 @@ public class FirebaseDbManager {
         context = rememberApp;
     }
 
-    public void requestUserDownload(@Nullable OnDbReadyCallback<User> callback) {
+    public void requestUserDownload(@Nullable OnDbReadyCallback<User> callbackArg) {
+        final OnDbReadyCallback<User> callback;
+        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
         String username = Util.username;
         if (username == null) {
             username = db.child(BRANCH_USERS).push().getKey();
@@ -110,24 +116,23 @@ public class FirebaseDbManager {
                 .child(BRANCH_USERS)
                 .child(Util.username)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Util.user = dataSnapshot.getValue(User.class);
-                if (callback != null) {
-                    callback.onDatabaseFinishedWorking(Util.user);
-                }
-            }
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Util.user = dataSnapshot.getValue(User.class);
+                        if (callback != null) {
+                            callback.onDatabaseFinishedWorking(Util.user);
+                        }
+                    }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                    }
+                });
     }
 
 
     public void uploadUserPhoneUpdate(String username, String phoneConstId, String phoneFirebaseNotificationToken) {
-        if (noInternet_ThanHandle()) return;
         if (phoneConstId == null || phoneFirebaseNotificationToken == null) return;
 
         db.updateChildren(requestUserPhoneUpload(username, phoneConstId, phoneFirebaseNotificationToken), new DatabaseReference.CompletionListener() {
@@ -150,36 +155,53 @@ public class FirebaseDbManager {
      */
     public void uploadNewEvent(final Event eventToUpload,
                                EventNotificationPolicy policy,
-                               final OnDbReadyCallback<Event> callback)
+                               final OnDbReadyCallback<Event> callbackArg)
             throws FirebaseDbException.NotEventCreator {
 
-        if (noInternet_ThanHandle()) return;
-        if (eventToUpload == null || callback == null) return;
+        final OnDbReadyCallback<Event> callback;
+        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
+
+        handleNoInternet();
+        if (eventToUpload == null) return;
 
         if (! eventToUpload.getCreator().equals(Util.username)) {
             throw new FirebaseDbException.NotEventCreator();
         }
 
-        uploadToDb(db, requestNewEventUpload(db, eventToUpload, policy), () -> callback.onDatabaseFinishedWorking(eventToUpload));
+        uploadToDb(
+                db,
+                requestNewEventUpload(
+                        db,
+                        eventToUpload,
+                        policy),
+                () -> callback.onDatabaseFinishedWorking(eventToUpload)
+        );
 
     }
 
-    public void updateExistingEvent(final Event toUpdload, final OnDbReadyCallback<Event> callback)
+    public void updateExistingEvent(final Event toUpdload, final OnDbReadyCallback<Event> callbackArg)
             throws FirebaseDbException.NotEventCreator
     {
-        if (toUpdload == null || callback == null) return;
+        final OnDbReadyCallback<Event> callback;
+        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
+
+
+        if (toUpdload == null) return;
         if (! toUpdload.getCreator().equals(Util.username)) {
             throw new FirebaseDbException.NotEventCreator();
         }
 
-        if (noInternet_ThanHandle()) return;
+        handleNoInternet();
 
 
-        uploadToDb(db, requestUpdateEventUpload(toUpdload), () -> callback.onDatabaseFinishedWorking(toUpdload));
+        uploadToDb(db, requestUpdateEventUpload(toUpdload), () -> {
+            if (callback != null) callback.onDatabaseFinishedWorking(toUpdload);
+        }
+        );
     }
 
     public void reqDownloadEvent(String eventId, OnDbReadyCallback<Event> callback) {
-        if (noInternet_ThanHandle()) return;
+        handleNoInternet();
         if (eventId == null || callback == null) return;
 
         db.child(BRANCH_EVENTS).child(eventId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -201,9 +223,13 @@ public class FirebaseDbManager {
         });
     }
 
-    public void reqDeleteEvent(String eventId, OnDbReadyCallback<Void> callback) throws FirebaseDbException.NotEventCreator {
-        if (noInternet_ThanHandle()) return;
-        if (eventId == null || callback == null) return;
+    public void reqDeleteEvent(String eventId, OnDbReadyCallback<Void> callbackArg) throws FirebaseDbException.NotEventCreator {
+        final OnDbReadyCallback<Void> callback;
+        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
+
+
+        handleNoInternet();
+        if (eventId == null) return;
 
         reqDownloadEvent(eventId, event -> {
             if (event.getCreator().equals(Util.username)) {
@@ -232,9 +258,13 @@ public class FirebaseDbManager {
                              String weeklyAlertDay,
                              String username,
                              EventNotificationPolicy policy,
-                             final OnDbReadyCallback<Void> callback) {
-        if (noInternet_ThanHandle()) return;
-        if (eventId == null || weeklyAlertDay == null || username == null || policy == null || callback == null) return;
+                             final OnDbReadyCallback<Void> callbackArg) {
+        final OnDbReadyCallback<Void> callback;
+        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
+
+
+        handleNoInternet();
+        if (eventId == null || weeklyAlertDay == null || username == null || policy == null) return;
 
         db.child(BRANCH_EVENTS).child(eventId).runTransaction(new Transaction.Handler() {
             @Override
@@ -268,8 +298,12 @@ public class FirebaseDbManager {
 
     }
 
-    public void reqUnsubscribe(String username, String eventId, OnDbReadyCallback<Event> callback) {
-        if (noInternet_ThanHandle()) return;
+    public void reqUnsubscribe(String username, String eventId, OnDbReadyCallback<Event> callbackArg) {
+        final OnDbReadyCallback<Event> callback;
+        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
+
+
+        handleNoInternet();
         if (eventId == null || username == null || callback == null) return;
 
         db.child(BRANCH_EVENTS).child(eventId).runTransaction(new Transaction.Handler() {
@@ -331,7 +365,7 @@ public class FirebaseDbManager {
                                             String username,
                                             EventNotificationPolicy newPolicy,
                                             final OnDbReadyCallback<Void> callback) {
-        if (noInternet_ThanHandle()) return;
+        handleNoInternet();
 
         uploadToDb(db,
                 requestUpdatePolicyUpload(username, eventId, eventWeeklyAlertDay, newPolicy),
@@ -345,7 +379,7 @@ public class FirebaseDbManager {
      * @param callback
      */
     public void requestDownloadAllEventsUserCreated(String username, final OnDbReadyCallback<List<Event>> callback) {
-        if (noInternet_ThanHandle()) return;
+        handleNoInternet();
         if (username == null || callback == null) return;
 
         db
@@ -379,7 +413,7 @@ public class FirebaseDbManager {
      * @param callback
      */
     public void requestDownloadHotEvents(OnDbReadyCallback<List<Event>> callback) {
-        if (noInternet_ThanHandle()) return;
+        handleNoInternet();
 
         db.child(BRANCH_EVENTS).orderByChild("subscribersAmount").limitToFirst(MAX_HOT_EVENTS_SHOW).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -402,7 +436,7 @@ public class FirebaseDbManager {
     }
 
     public void requestDownloadAllEventsUserIsSubscribedTo(String username, OnDbReadyCallback<List<Event>> callback) {
-        if (noInternet_ThanHandle()) return;
+        handleNoInternet();
 
         if (Util.user == null) return;
 
@@ -413,16 +447,20 @@ public class FirebaseDbManager {
         }
 
 
-        Map<String, Boolean> allEvents = Util.user.eventSubscribed;
+        Map<String, String> allEvents = Util.user.eventSubscribed;
 
         Set<String> eventsNoLongerExist = new HashSet<>(allEvents.keySet());
         List<Event> retVal = new ArrayList<>();
 
-        for (String eventId : allEvents.keySet()) {
+        for (Map.Entry<String, String> eventIdToSubscriberPolicy: allEvents.entrySet()) {
+            String eventId = eventIdToSubscriberPolicy.getKey();
+            String ntfcPolicy = eventIdToSubscriberPolicy.getValue();
+
             db.child(BRANCH_EVENTS).child(eventId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Event fromFirebase = dataSnapshot.getValue(Event.class);
+                    fromFirebase.set_local_subscriberNtfcPolicy(ntfcPolicy);
                     if (fromFirebase == null) {
                         eventsNoLongerExist.add(dataSnapshot.getKey());
                     } else {
@@ -478,9 +516,9 @@ public class FirebaseDbManager {
      *
      * @return true iff user is in area without internet
      */
-    private boolean noInternet_ThanHandle() {
+    private boolean handleNoInternet() {
         if (!checkInternet(context)) {
-            Toast.makeText(context, "No internet connectivity!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.ux_prompt_no_internet_slower_bg_data, Toast.LENGTH_SHORT).show();
             return true;
         }
         return false;

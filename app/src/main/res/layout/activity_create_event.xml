@@ -2,176 +2,248 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
     android:clipToPadding="false"
     android:focusable="true"
     android:focusableInTouchMode="true"
     >
 
-    <EditText
-        android:id="@+id/edt_create_title"
-
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Title (what is the event?)"
-        android:maxLines="1"
-        android:layout_marginBottom="16dp"
-        android:textSize="@dimen/txt_large"
-        android:textColorHint="@color/divider"
-        android:textColor="@color/secondary_text"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-        />
+            >
+            <EditText
+                android:id="@+id/edt_create_title"
 
-    <ImageView
-        android:id="@+id/iv_create_add_picture"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Title (what is the event?)"
+                android:maxLines="1"
+                android:layout_marginBottom="16dp"
+                android:textSize="@dimen/txt_large"
+                android:textColorHint="@color/divider"
+                android:textColor="@color/secondary_text"
+                android:layout_margin="16dp"
+                />
 
-        android:layout_width="135dp"
-        android:layout_height="180dp"
-        android:background="@drawable/rect_portrait"
-        app:srcCompat="@drawable/ic_add_a_photo_black_24dp"
-        android:tint="@color/purple500"
-        android:layout_alignParentEnd="true"
-        android:scaleType="centerCrop"
-        android:padding="65dp"
-        android:elevation="5dp"
-        android:layout_below="@+id/edt_create_title"
+            <View
+                android:id="@+id/v_create_space_title"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/edt_create_title"/>
 
-        />
 
-    <EditText
-        android:id="@+id/edt_create_body"
-        android:layout_width="match_parent"
-        android:layout_height="186.5dp"
-        android:ellipsize="end"
-        android:textColorHint="@color/divider"
-        android:textColor="@color/secondary_text"
 
-        android:hint="Want to describe your countdown a little bit more?\n\nIt will help users relate to your event!"
+            <ImageView
+                android:id="@+id/iv_create_add_picture"
 
-        android:layout_toStartOf="@+id/iv_create_add_picture"
-        android:layout_alignTop="@+id/iv_create_add_picture"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@drawable/rect_portrait"
+                app:srcCompat="@drawable/ic_add_a_photo_black_64dp"
+                android:tint="@color/colorAccent"
+                android:layout_alignParentEnd="true"
+                android:scaleType="centerInside"
+                android:padding="65dp"
+                android:elevation="5dp"
+                android:layout_below="@+id/v_create_space_title"
+                android:layout_margin="32dp"
+                />
 
-        android:gravity="start|top"
+            <halamish.reem.remember.view.MaterialCircleImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:backgroundTint="@color/colorAccent"
+                android:layout_alignTop="@+id/iv_create_add_picture"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="-12dp"
+                android:elevation="5dp"
+                android:layout_marginEnd="18dp"
+                android:src="@drawable/ic_clear_white_24dp"
+                />
 
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="16dp"
-        android:textSize="@dimen/txt_normal"
-        />
+            <View
+                android:id="@+id/v_create_space_0"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/iv_create_add_picture"/>
+            <EditText
+                android:id="@+id/edt_create_body"
+                android:layout_width="match_parent"
+                android:layout_height="126.5dp"
+                android:ellipsize="end"
+                android:textColorHint="@color/divider"
+                android:textColor="@color/secondary_text"
 
-    <View
-        android:id="@+id/v_create_space_1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"
-        android:layout_below="@+id/edt_create_body"/>
+                android:hint="Want to describe your countdown a little bit more?\n\nIt will help users relate to your event!"
 
-    <ImageView
-        android:id="@+id/iv_create_icon_date"
+                android:layout_below="@+id/v_create_space_0"
 
-        android:layout_width="@dimen/icon_size"
-        android:layout_height="@dimen/icon_size"
-        app:srcCompat="@drawable/ic_today_black_24dp"
-        android:layout_below="@+id/v_create_space_1"
-        android:layout_margin="16dp"
-        android:tint="@color/primary"
-        />
+                android:gravity="start|top"
 
-    <TextView
-        android:id="@+id/tv_create_date"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="16dp"
+                android:textSize="@dimen/txt_normal"
+                />
 
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:textSize="@dimen/txt_normal"
-        android:text="21/08/2017"
+            <View
+                android:id="@+id/v_create_space_1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/edt_create_body"/>
 
-        android:layout_toEndOf="@+id/iv_create_icon_date"
-        android:layout_alignTop="@+id/iv_create_icon_date"
-        android:layout_alignBottom="@+id/iv_create_icon_date"
-        android:gravity="center"
-        android:textColor="@color/divider"
-        />
+            <ImageView
+                android:id="@+id/iv_create_icon_date"
 
-    <ImageView
-        android:id="@+id/iv_create_icon_time"
+                style="@style/activityCreate_ImageView"
 
-        android:layout_width="@dimen/icon_size"
-        android:layout_height="@dimen/icon_size"
-        app:srcCompat="@drawable/ic_access_time_black_24dp"
-        android:layout_below="@+id/iv_create_icon_date"
+                app:srcCompat="@drawable/ic_today_black_24dp"
+                android:layout_below="@+id/v_create_space_1"
+                android:layout_margin="16dp"
+                />
 
-        android:tint="@color/primary"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+            <TextView
+                android:id="@+id/tv_create_date"
 
-        />
+                style="@style/activityCreate_TextView"
+                android:text="21/08/2017"
 
-    <TextView
-        android:id="@+id/tv_create_time"
+                android:layout_toEndOf="@+id/iv_create_icon_date"
+                android:layout_alignTop="@+id/iv_create_icon_date"
+                android:layout_alignBottom="@+id/iv_create_icon_date"
+                />
 
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:textSize="@dimen/txt_normal"
-        android:text="21:00"
+            <ImageView
+                android:id="@+id/iv_create_icon_time"
 
-        android:layout_toEndOf="@+id/iv_create_icon_time"
-        android:layout_alignTop="@+id/iv_create_icon_time"
-        android:layout_alignBottom="@+id/iv_create_icon_time"
-        android:gravity="center"
-        android:textColor="@color/divider"
-        />
+                style="@style/activityCreate_ImageView"
 
-    <View
-        android:id="@+id/v_create_space_2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"
-        android:layout_below="@+id/tv_create_time"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        />
+                app:srcCompat="@drawable/ic_access_time_black_24dp"
+                android:layout_below="@+id/iv_create_icon_date"
 
-    <ImageView
-        android:id="@+id/iv_create_icon_ntfc"
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
 
-        android:layout_width="@dimen/icon_size"
-        android:layout_height="@dimen/icon_size"
-        app:srcCompat="@drawable/ic_vibration_black_24dp"
-        android:layout_below="@+id/v_create_space_2"
+                />
 
-        android:tint="@color/primary"
-        android:layout_marginTop="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+            <TextView
+                android:id="@+id/tv_create_time"
 
-        />
+                style="@style/activityCreate_TextView"
 
-    <TextView
-        android:id="@+id/tv_create_ntfc"
+                android:text="21:00"
 
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:textSize="@dimen/txt_normal"
-        android:text="every day"
+                android:layout_toEndOf="@+id/iv_create_icon_time"
+                android:layout_alignTop="@+id/iv_create_icon_time"
+                android:layout_alignBottom="@+id/iv_create_icon_time"
+                />
 
-        android:layout_toEndOf="@+id/iv_create_icon_ntfc"
-        android:layout_alignTop="@+id/iv_create_icon_ntfc"
-        android:layout_alignBottom="@+id/iv_create_icon_ntfc"
-        android:gravity="center"
-        android:textColor="@color/divider"
-        />
+            <View
+                android:id="@+id/v_create_space_2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/tv_create_time"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                />
+
+            <ImageView
+                android:id="@+id/iv_create_icon_ntfc"
+
+                style="@style/activityCreate_ImageView"
+
+                app:srcCompat="@drawable/ic_vibration_black_24dp"
+                android:layout_below="@+id/v_create_space_2"
+
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+
+                />
+
+            <TextView
+                android:id="@+id/tv_create_ntfc"
+
+                style="@style/activityCreate_TextView"
+
+                android:text="@string/notify_weekly"
+
+                android:layout_toEndOf="@+id/iv_create_icon_ntfc"
+                android:layout_alignTop="@+id/iv_create_icon_ntfc"
+                android:layout_alignBottom="@+id/iv_create_icon_ntfc"
+                android:paddingTop="2dp"
+                />
+
+            <View
+                android:id="@+id/v_create_space_3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/tv_create_ntfc"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                />
+
+
+            <ImageView
+                android:id="@+id/iv_create_icon_public"
+
+                style="@style/activityCreate_ImageView"
+
+                app:srcCompat="@drawable/ic_fingerprint_black_24dp"
+                android:layout_below="@+id/v_create_space_3"
+
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+
+                />
+
+            <TextView
+                android:id="@+id/tv_create_public"
+
+                style="@style/activityCreate_TextView"
+
+                android:text="@string/private_"
+
+                android:layout_toEndOf="@+id/iv_create_icon_public"
+                android:layout_alignTop="@+id/iv_create_icon_public"
+                android:layout_alignBottom="@+id/iv_create_icon_public"
+                android:paddingTop="2dp"
+                />
+
+
+
+
+        </RelativeLayout></ScrollView>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_create"
         android:layout_width="56dp"
         android:layout_height="56dp"
         app:srcCompat="@drawable/ic_save_black_24dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         app:fabSize="normal"
-        app:backgroundTint="@color/purple500"
+        app:backgroundTint="@color/colorAccent"
         android:tint="@android:color/white"
+        android:transitionName="fab"
+        android:layout_margin="16dp"
+
         />
+
+
 
 </RelativeLayout>

@@ -81,7 +81,7 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
         if (isInEditMode()) {
             List<Event> eventList = new ArrayList<>();
             for (int i = 0; i < mEditModeNumItems; i++) {
-                eventList.add(new Event(new PartiallyEventForGui("2017/05/21 19:00", "Wedding!", "We are getting married :)" ,"reem.halamish@gmail.com", true, true)));
+                eventList.add(new Event(new PartiallyEventForGui("2017/05/21 19:00", "Wedding!", "We are getting married :)" ,"reem.halamish@gmail.com", "dont", true, true)));
             }
             startWhenInfoAlreadyInXml(eventList, null);
         }
@@ -104,7 +104,7 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
 
     public void start(List<Event> data, boolean shouldStarVisible, boolean shouldStarBeOn, EventAdapter.OnStarPress callbacks) {
         List<Event> copy = new ArrayList<>(data);
-        mAdapter = new EventAdapter(data, shouldStarBeOn, shouldStarVisible, callbacks);
+        mAdapter = new EventAdapter(copy, shouldStarBeOn, shouldStarVisible, callbacks);
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));

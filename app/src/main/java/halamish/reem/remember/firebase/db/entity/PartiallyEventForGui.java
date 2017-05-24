@@ -1,5 +1,6 @@
 package halamish.reem.remember.firebase.db.entity;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,26 +15,30 @@ import lombok.Setter;
  * Created by Re'em on 5/20/2017.
  */
 
-public class PartiallyEventForGui {
+public class PartiallyEventForGui implements Serializable {
     @Getter @Setter String date;
     @Getter @Setter String title;
     @Getter @Setter String body;
     @Getter @Setter String creator;   // the user that created this event. FirebaseDB is using this field!!!
+    @Getter @Setter String picturePathHost = "";
+    @Getter @Setter String policy;
     @Getter @Setter boolean isPublic;
 
     @Setter int weeklyAlertDay; // ranges [1,7] ,  FirebaseDB is using this field!!!
 
     public PartiallyEventForGui(String date,
-                 String title,
-                 String body,
-                 String creator,
-                 boolean isPublic,
-                 boolean notShabbat) {
+                                String title,
+                                String body,
+                                String creator,
+                                String policy,
+                                boolean isPublic,
+                                boolean notShabbat) {
         this.date = date;
         this.title = title;
         this.body = body;
         this.creator = creator;
         this.isPublic = isPublic;
+        this.policy = policy;
         randomWeeklyAlertDay();
         if (notShabbat) {
             while (weeklyAlertDay == 7) randomWeeklyAlertDay();

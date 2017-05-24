@@ -46,7 +46,7 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         Event event = events.get(position);
         holder.tvTitle.setText(event.getTitle());
-        holder.cdvDays.setCountdown((int) event.getCountDownDays(), (int) event.getCountDownHours());
+        holder.cdvDays.setCountdown((int) event.get_local_CountDownDays(), (int) event.get_local_CountDownHours());
 
         // todo holder.civPicture.setImage(from firebase storage somehow)
 
@@ -99,6 +99,7 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     void addEvent(Event toAdd) {
         events.add(0, toAdd);
+        notifyItemRangeChanged(1, events.size());
         notifyItemInserted(0);
     }
 

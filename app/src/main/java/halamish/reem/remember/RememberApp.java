@@ -8,6 +8,7 @@ import com.google.firebase.FirebaseApp;
 
 import halamish.reem.remember.firebase.db.FirebaseDbManager;
 import halamish.reem.remember.firebase.notification.FirebaseTokenService;
+import halamish.reem.remember.firebase.storage.FirebaseStorageManager;
 import halamish.reem.remember.firebase.user.FirebaseUserManager;
 
 /**
@@ -39,6 +40,7 @@ public class RememberApp extends Application {
         FirebaseUserManager.init(context);
         FirebaseDbManager.init(context);
         FirebaseTokenService.updateTokenInServer();
+        FirebaseStorageManager.init(context);
 
         Log.d(TAG, "after init");
     }

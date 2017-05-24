@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @IgnoreExtraProperties
 public class User {
     public Map<String, String> phones;
-    public Map<String, Boolean> eventSubscribed; // firebase is using this variable!!
+    public Map<String, String> eventSubscribed; // firebase is using this variable!!
 
     public User() {
         phones = new HashMap<>();

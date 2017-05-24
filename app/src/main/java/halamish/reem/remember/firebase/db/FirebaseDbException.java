@@ -7,8 +7,8 @@ import com.google.firebase.database.DatabaseError;
  */
 
 public class FirebaseDbException extends Exception {
-    static class NotEventCreator extends FirebaseDbException {NotEventCreator() {super("You can't change an event you did not create!");}}
-    static class NoSuchItem extends FirebaseDbException {NoSuchItem() {super("You can't change an event you did not create!");}}
+    public static class NotEventCreator extends FirebaseDbException {NotEventCreator() {super("You can't change an event you did not create!");}}
+    public static class NoSuchItem extends FirebaseDbException {NoSuchItem() {super("You can't change an event you did not create!");}}
 
 
 

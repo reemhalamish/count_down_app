@@ -1,4 +1,4 @@
-package halamish.reem.remember.firebase.db;
+package halamish.reem.remember.firebase;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -21,7 +21,7 @@ public class Helper {
      * @param input
      * @return
      */
-    static Map<String, Object> toFirebaseMap(Map<String, ?> input) {
+    public static Map<String, Object> toFirebaseMap(Map<String, ?> input) {
         Map<String, Object> retVal = new HashMap<>();
         if (input != null) {
             for (Map.Entry<String, ?> entry : input.entrySet()) {
@@ -36,7 +36,7 @@ public class Helper {
      * @param values
      * @return
      */
-    static String toFirebaseBranch(String... values) {
+    public static String toFirebaseBranch(String... values) {
         String retVal = "";
         for (String branch : values) {
             retVal += "/" + branch;
@@ -44,7 +44,7 @@ public class Helper {
         return retVal;
     }
 
-    static boolean checkInternet(Context context){
+    public static boolean checkInternet(Context context){
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();

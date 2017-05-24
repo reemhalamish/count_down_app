@@ -2,9 +2,34 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <!--in v21 overrided version with transition-->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="Theme.App.Base" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorControlNormal">#d32f2f</item>
+        <item name="colorControlActivated">#000000</item>
+        <item name="colorControlHighlight">#47178b</item>
+    </style>
+
+    <style name="activityCreate_TextView">
+        <item name="android:paddingBottom">3dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:textSize">@dimen/txt_normal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/divider</item>
+    </style>
+
+    <style name="activityCreate_ImageView">
+        <item name="android:layout_width">@dimen/icon_size</item>
+        <item name="android:layout_height">@dimen/icon_size</item>
+        <item name="android:tint">@color/divider</item>
+    </style>
+
+    <style name="activityCreate_DialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
