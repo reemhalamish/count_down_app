@@ -127,6 +127,9 @@ public class MainActivity extends AppCompatActivity implements FirebaseDbManager
                     }
                 }
             });
+
+            // todo add here snckbar option to "DISMISS" in which it will call the Storage Manager and cancel the pictures upload
+
             snackbar.show();
         } else {
             super.onActivityResult(requestCode, resultCode, data);

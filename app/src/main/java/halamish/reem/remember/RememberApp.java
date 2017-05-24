@@ -10,6 +10,7 @@ import halamish.reem.remember.firebase.db.FirebaseDbManager;
 import halamish.reem.remember.firebase.notification.FirebaseTokenService;
 import halamish.reem.remember.firebase.storage.FirebaseStorageManager;
 import halamish.reem.remember.firebase.user.FirebaseUserManager;
+import lombok.Getter;
 
 /**
  * Created by Re'em on 5/17/2017.
@@ -22,11 +23,13 @@ import halamish.reem.remember.firebase.user.FirebaseUserManager;
 
 public class RememberApp extends Application {
     private static final String TAG = RememberApp.class.getSimpleName();
+    @Getter private static Context appContext;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
+        appContext = this;
         init(this);
     }
 

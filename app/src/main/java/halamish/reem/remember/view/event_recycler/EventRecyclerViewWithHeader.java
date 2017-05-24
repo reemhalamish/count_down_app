@@ -3,19 +3,32 @@ package halamish.reem.remember.view.event_recycler;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import halamish.reem.remember.R;
+import halamish.reem.remember.RememberApp;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.PartiallyEventForGui;
+import halamish.reem.remember.firebase.storage.FirebaseStorageManager;
 import halamish.reem.remember.view.HeaderView;
 
 /**
@@ -33,6 +46,7 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
     boolean mStarVisible;
     boolean mStarOn;
     int mEditModeNumItems;
+    Map<String, Bitmap> eventIdToBitmap;
 
     public EventRecyclerViewWithHeader(Context context) {
         super(context);
@@ -81,7 +95,7 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
         if (isInEditMode()) {
             List<Event> eventList = new ArrayList<>();
             for (int i = 0; i < mEditModeNumItems; i++) {
-                eventList.add(new Event(new PartiallyEventForGui("2017/05/21 19:00", "Wedding!", "We are getting married :)" ,"reem.halamish@gmail.com", "dont", true, true)));
+                eventList.add(new Event(new PartiallyEventForGui("2017/05/21 19:00", "Wedding!", "We are getting married :)" ,"reem.halamish@gmail.com", "dont", "123123", true, true)));
             }
             startWhenInfoAlreadyInXml(eventList, null);
         }
@@ -105,6 +119,10 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
     public void start(List<Event> data, boolean shouldStarVisible, boolean shouldStarBeOn, EventAdapter.OnStarPress callbacks) {
         List<Event> copy = new ArrayList<>(data);
         mAdapter = new EventAdapter(copy, shouldStarBeOn, shouldStarVisible, callbacks);
+        eventIdToBitmap = new HashMap<>();
+        for (Event event : copy) {
+
+        }
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));

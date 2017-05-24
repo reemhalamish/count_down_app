@@ -47,17 +47,14 @@ class UpdatesGenerator {
      * @return
      */
     static Map<String, Object> requestNewEventUpload(DatabaseReference db, Event eventToUpload, EventNotificationPolicy policy) {
-        String eventUniqueString = db.child(BRANCH_EVENTS).push().getKey();
-        eventToUpload.setUniqueId(eventUniqueString);
-
         Map<String, Object> uploads = new HashMap<>();
-        uploads.put(toFirebaseBranch(BRANCH_EVENTS, eventUniqueString), eventToUpload);
+        uploads.put(toFirebaseBranch(BRANCH_EVENTS, eventToUpload.getUniqueId()), eventToUpload);
         switch (policy) {
             case NOTIFY_DAILY:
-                uploads.put(toFirebaseBranch(BRANCH_ALERTS, BRANCH_ALERTS_DAILY, eventUniqueString, Util.username), true);
+                uploads.put(toFirebaseBranch(BRANCH_ALERTS, BRANCH_ALERTS_DAILY, eventToUpload.getUniqueId(), Util.username), true);
                 break;
             case NOTIFY_WEEKLY:
-                uploads.put(toFirebaseBranch(BRANCH_ALERTS, eventToUpload.weeklyAlertDay(), eventUniqueString, Util.username), true);
+                uploads.put(toFirebaseBranch(BRANCH_ALERTS, eventToUpload.weeklyAlertDay(), eventToUpload.getUniqueId(), Util.username), true);
                 break;
             case DONT_NOTIFY: break;
         }

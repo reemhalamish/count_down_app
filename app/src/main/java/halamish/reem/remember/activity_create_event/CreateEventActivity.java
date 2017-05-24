@@ -3,7 +3,6 @@ package halamish.reem.remember.activity_create_event;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -34,8 +33,10 @@ import halamish.reem.remember.view.ViewUtil;
 
 public class CreateEventActivity extends AppCompatActivity {
     public static final String NEW_CREATED_EVENT = "event_new_created";
+    private static final String TAG = CreateEventActivity.class.getSimpleName();
 
-    ImageView ivPicture;
+    ImageView ivPictureAdd;
+    View ivClearPicture;
     EditText edtTitle;
     EditText edtBody;
     TextView tvNtfc;
@@ -52,9 +53,9 @@ public class CreateEventActivity extends AppCompatActivity {
 
     //    int purpleColor;
     int almostBlackColor;
+    int accentColor;
     Drawable imgVectorPublic, imgVectorPrivate;
-    WorkWithPicture.OnPictureCroppedAndReadyCallback mPictureCroppedAndReadyCallback;
-    Bitmap mImageToUpload;
+    WorkWithPicture pictureWorker;
 
     //    @State
     String mDate = "2017/08/21"; // January is 0, December is 11, August is 7
@@ -67,8 +68,10 @@ public class CreateEventActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
+
 //        purpleColor = ContextCompat.getColor(this, R.color.purple500);
         almostBlackColor = ContextCompat.getColor(this, R.color.secondary_text);
+        accentColor = ContextCompat.getColor(this, R.color.accent);
 //        Icepick.restoreInstanceState(this, savedInstanceState);
         findViews();
         setDefaultValuesTextViews();
@@ -81,18 +84,33 @@ public class CreateEventActivity extends AppCompatActivity {
         setListenerPublic();
 
         setListenerFab();
-        setPictureReadyCallback();
 
+        setPictureListenerAndStartValues();
 
-        // to change editText color:
-//
     }
 
-    private void setPictureReadyCallback() {
-        mPictureCroppedAndReadyCallback = image -> {
-            ivPicture.setImageBitmap(image);
-            mImageToUpload = image;
-        };
+    private void setPictureListenerAndStartValues() {
+        ivClearPicture.setOnClickListener(view -> {
+            int padding24Dp = (int) ViewUtil.dpToPixel(CreateEventActivity.this, 24);
+            ivPictureAdd.setPadding(padding24Dp, padding24Dp, padding24Dp, padding24Dp);
+            ivPictureAdd.setColorFilter(accentColor);
+            ivPictureAdd.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            ivPictureAdd.setImageResource(R.drawable.ic_add_a_photo_white_48dp);
+
+            ivClearPicture.setVisibility(View.GONE);
+        });
+
+
+        pictureWorker = new WorkWithPicture(image -> {
+            ivPictureAdd.setColorFilter(null);
+            ivPictureAdd.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            ivPictureAdd.setImageBitmap(image);
+            ivPictureAdd.setPadding(0,0,0,0);
+            ivClearPicture.setVisibility(View.VISIBLE);
+        });
+
+        ivPictureAdd.setOnClickListener(view -> pictureWorker.getPictures(this));
+        ivPictureAdd.setColorFilter(accentColor);
     }
 
 
@@ -102,6 +120,10 @@ public class CreateEventActivity extends AppCompatActivity {
         tvNtfc.setText(R.string.dont_notify);
     }
 
+    /**
+     * the upload of the event will happen only if the user hasn't dismissed the snackbar
+     * the upload of the pictures will happen anyway, and if the user dismissed the snackbar they will cancel
+     */
     private void setListenerFab() {
         fab.setOnClickListener(view -> {
             String title = edtTitle.getText().toString();
@@ -120,9 +142,10 @@ public class CreateEventActivity extends AppCompatActivity {
                             body,
                             Util.username,
                             mPolicy.toString(),
-                            isPublic,
-                            true
+                            isPublic
                     );
+
+            pictureWorker.uploadPicturesQuietlyInBg(newbie.getEventId());
 
             Intent backIntent = new Intent();
             backIntent.putExtra(NEW_CREATED_EVENT, newbie);
@@ -146,26 +169,23 @@ public class CreateEventActivity extends AppCompatActivity {
         imgVectorPrivate = ViewUtil.getVectorAsset(this, R.drawable.ic_fingerprint_black_24dp);
         imgVectorPublic = ViewUtil.getVectorAsset(this, R.drawable.ic_public_black_24dp);
 
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CharSequence[] arrayString = {getString(R.string.public_), getString(R.string.private_)};
-                boolean[] arrayAnswer = {true, false};
-                Drawable[] arrayPicture = {imgVectorPublic, imgVectorPrivate};
-                new AlertDialog.Builder(CreateEventActivity.this, R.style.activityCreate_DialogTheme)
-                        .setTitle(R.string.wanna_public_event)
-                        .setSingleChoiceItems(arrayString, 0, (dialog, which) -> {
-                            isPublic = arrayAnswer[which];
-                            tvPublic.setText(arrayString[which]);
-                            tvPublic.setTextColor(almostBlackColor);
-                            ivPublic.setImageDrawable(arrayPicture[which]);
-                            ivPublic.setColorFilter(almostBlackColor);
-                            dialog.dismiss();
-                        })
-                        .create()
-                        .show();
+        View.OnClickListener listener = view -> {
+            CharSequence[] arrayString = {getString(R.string.public_), getString(R.string.private_)};
+            boolean[] arrayAnswer = {true, false};
+            Drawable[] arrayPicture = {imgVectorPublic, imgVectorPrivate};
+            new AlertDialog.Builder(CreateEventActivity.this, R.style.activityCreate_DialogTheme)
+                    .setTitle(R.string.wanna_public_event)
+                    .setSingleChoiceItems(arrayString, 0, (dialog, which) -> {
+                        isPublic = arrayAnswer[which];
+                        tvPublic.setText(arrayString[which]);
+                        tvPublic.setTextColor(almostBlackColor);
+                        ivPublic.setImageDrawable(arrayPicture[which]);
+                        ivPublic.setColorFilter(almostBlackColor);
+                        dialog.dismiss();
+                    })
+                    .create()
+                    .show();
 
-            }
         };
 
         ivPublic.setOnClickListener(listener);
@@ -220,37 +240,35 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     private void setListenerTime() {
-        View.OnClickListener timeListener = view -> {
+        View.OnClickListener timeListener = view -> new TimePickerDialog(
+                this,
+                R.style.activityCreate_DialogTheme,
+                (timePicker, hour, minute) -> {
+                    String sHour = String.valueOf(hour);
+                    if (hour < 10)
+                        sHour = "0" + sHour;
+                    String sMin = String.valueOf(minute);
+                    if (minute < 10)
+                        sMin = "0" + sMin;
 
-            new TimePickerDialog(
-                    this,
-                    R.style.activityCreate_DialogTheme,
-                    (timePicker, hour, minute) -> {
-                        String sHour = String.valueOf(hour);
-                        if (hour < 10)
-                            sHour = "0" + sHour;
-                        String sMin = String.valueOf(minute);
-                        if (minute < 10)
-                            sMin = "0" + sMin;
+                    mTime = sHour + ":" + sMin;
+                    tvTime.setText(mTime);
 
-                        mTime = sHour + ":" + sMin;
-                        tvTime.setText(mTime);
-
-                        tvTime.setTextColor(almostBlackColor);
-                        ivTime.setColorFilter(almostBlackColor);
-                    },
-                    getHourFromTimeTextView(),
-                    getMinuteFromTimeTextView(),
-                    false)
-                    .show();
-        };
+                    tvTime.setTextColor(almostBlackColor);
+                    ivTime.setColorFilter(almostBlackColor);
+                },
+                getHourFromTimeTextView(),
+                getMinuteFromTimeTextView(),
+                false)
+                .show();
 
         ivTime.setOnClickListener(timeListener);
         tvTime.setOnClickListener(timeListener);
     }
 
     private void findViews() {
-        ivPicture = (ImageView) findViewById(R.id.iv_create_add_picture);
+        ivPictureAdd = (ImageView) findViewById(R.id.iv_create_add_picture);
+        ivClearPicture = findViewById(R.id.iv_create_clear_picture);
         edtTitle = (EditText) findViewById(R.id.edt_create_title);
         edtBody = (EditText) findViewById(R.id.edt_create_body);
         tvDate = (TextView) findViewById(R.id.tv_create_date);
@@ -277,14 +295,6 @@ public class CreateEventActivity extends AppCompatActivity {
         return Integer.parseInt(tvTime.getText().toString().substring(0,2));
     }
 
-    public static String getRepresentation(String actualDate) {
-        int month = Integer.parseInt(actualDate.substring(5,7));
-        month++;
-        String monthRepresnt = String.valueOf(month);
-        if (month < 10) monthRepresnt = "0" + monthRepresnt;
-
-        return actualDate.substring(0, 5) + monthRepresnt + actualDate.substring(7);
-    }
 
     /**
      *
@@ -301,5 +311,17 @@ public class CreateEventActivity extends AppCompatActivity {
         String sDay = String.valueOf(day);
         if (day < 10) sDay = "0" + sDay;
         return sYear + "/" + sMonth + "/" + sDay;
+    }
+
+    /**
+     * Dispatch incoming result to the correct fragment.
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        pictureWorker.onResult(requestCode, resultCode, data, this);
     }
 }

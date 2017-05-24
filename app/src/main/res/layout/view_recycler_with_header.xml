@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/view_rcv_with_header_header"
         android:visibility="gone"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="24dp"
         />
 
 

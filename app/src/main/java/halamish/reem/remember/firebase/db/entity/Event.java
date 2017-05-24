@@ -54,6 +54,7 @@ public class Event implements Serializable {
         weeklyAlertDay = eventForGui.weeklyAlertDay;
         picturePathHost = eventForGui.picturePathHost;
         creatorNtfcPolicy = eventForGui.policy;
+        uniqueId = eventForGui.eventId;
     }
 
 

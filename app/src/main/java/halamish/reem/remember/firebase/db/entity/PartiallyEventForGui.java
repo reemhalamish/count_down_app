@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
+import halamish.reem.remember.firebase.db.FirebaseDbManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,7 @@ public class PartiallyEventForGui implements Serializable {
     @Getter @Setter String creator;   // the user that created this event. FirebaseDB is using this field!!!
     @Getter @Setter String picturePathHost = "";
     @Getter @Setter String policy;
+    @Getter @Setter String eventId;
     @Getter @Setter boolean isPublic;
 
     @Setter int weeklyAlertDay; // ranges [1,7] ,  FirebaseDB is using this field!!!
@@ -31,18 +33,24 @@ public class PartiallyEventForGui implements Serializable {
                                 String body,
                                 String creator,
                                 String policy,
+                                String eventId,
                                 boolean isPublic,
                                 boolean notShabbat) {
         this.date = date;
         this.title = title;
         this.body = body;
         this.creator = creator;
+        this.eventId = eventId;
         this.isPublic = isPublic;
         this.policy = policy;
         randomWeeklyAlertDay();
         if (notShabbat) {
             while (weeklyAlertDay == 7) randomWeeklyAlertDay();
         }
+    }
+
+    public PartiallyEventForGui(String date, String title, String body, String creator, String policy, boolean isPublic) {
+        this(date, title, body, creator, policy, FirebaseDbManager.getManager().getNewEventId(),isPublic, true);
     }
 
     public Date asDate() {

@@ -298,6 +298,10 @@ public class FirebaseDbManager {
 
     }
 
+    public String getNewEventId() {
+        return  db.child(BRANCH_EVENTS).push().getKey();
+    }
+
     public void reqUnsubscribe(String username, String eventId, OnDbReadyCallback<Event> callbackArg) {
         final OnDbReadyCallback<Event> callback;
         if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
