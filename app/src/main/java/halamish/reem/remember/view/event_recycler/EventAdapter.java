@@ -65,7 +65,7 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
         Bitmap icon = eventIdToBitmap.get(event.getUniqueId());
         if (icon != null) holder.civPicture.setImageBitmap(icon);
         else {
-            FirebaseStorageManager.getManager().getLowDensPictureUrl(event.getUniqueId(), new FirebaseStorageManager.OnPictureReadyCallback() {
+            FirebaseStorageManager.OnPictureReadyCallback callback = new FirebaseStorageManager.OnPictureReadyCallback() {
                 @Override
                 public void onPicReady(String eventId, byte[] picture, int height, int width) {
                     Log.d(TAG, "picture got in! for item " + position);
@@ -75,7 +75,16 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
                     eventIdToBitmap.put(eventId, icon);
                     notifyItemChanged(holder.getAdapterPosition());
                 }
-            });
+
+                @Override
+                public void onError(Exception exception) {
+                    exception.printStackTrace();
+                    // just try again!
+                    notifyItemChanged(holder.getAdapterPosition()); // so it will call the storage manager again
+                }
+            };
+
+            FirebaseStorageManager.getManager().getLowDensPictureUrl(event.getUniqueId(), callback);
         }
 
         if (isStarVisibleAllEvents) {
@@ -122,14 +131,14 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
     void removeAt(int position) {
         events.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, events.size());
+//        notifyItemRangeChanged(position, events.size());
     }
 
     void addEvent(Event toAdd) {
         events.add(0, toAdd);
         notifyItemInserted(0);
-        notifyItemRangeChanged(1, events.size());
+//        notifyItemRangeChanged(1, events.size());
+
+        // todo not always working
     }
-
-
 }

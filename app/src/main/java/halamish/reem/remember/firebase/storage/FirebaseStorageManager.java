@@ -3,7 +3,9 @@ package halamish.reem.remember.firebase.storage;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -37,11 +39,13 @@ public class FirebaseStorageManager {
     public static final int LOW_DENS_WIDTH = 320;
     public static final int LOW_DENS_HEIGHT = 320;
 
-
-    public static interface OnStorageFinishedCallback {
+    public static interface OnStorageError {
         default void onError(Exception exception) {
             exception.printStackTrace();
         }
+    }
+
+    public static interface OnStorageFinishedCallback extends OnStorageError {
         void onFinished(Uri downloadUrl);
     }
 
@@ -94,12 +98,17 @@ public class FirebaseStorageManager {
         return toFirebaseBranch(BRANCH_IMGS, BRANCH_EVENTS, eventId, BRANCH_LOW_DENS, PICTURE + DEFAULT_PICTURE_EXT);
     }
 
-    public static interface OnPictureReadyCallback {
+    public static interface OnPictureReadyCallback extends OnStorageError {
         void onPicReady(String eventId, byte[] picture, int height, int width);
     }
 
     public void getLowDensPictureUrl(String eventId, OnPictureReadyCallback callback){
-        storage.getReference().child(getPathPictureLowDens(eventId)).getBytes(LOW_DENS_WIDTH * LOW_DENS_HEIGHT).addOnSuccessListener(bytes -> callback.onPicReady(eventId, bytes, LOW_DENS_HEIGHT, LOW_DENS_WIDTH));
+        storage
+                .getReference()
+                .child(getPathPictureLowDens(eventId))
+                .getBytes(LOW_DENS_WIDTH * LOW_DENS_HEIGHT)
+                .addOnSuccessListener(bytes -> callback.onPicReady(eventId, bytes, LOW_DENS_HEIGHT, LOW_DENS_WIDTH))
+                .addOnFailureListener(callback::onError);
     }
 
 

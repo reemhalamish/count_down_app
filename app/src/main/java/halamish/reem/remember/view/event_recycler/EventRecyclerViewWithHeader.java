@@ -77,7 +77,7 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
         mRecyclerView = (RecyclerView) findViewById(R.id.view_rcv_with_header_rcv);
         mTvNothingHere = (TextView) findViewById(R.id.view_rcv_with_header_nothing);
 
-        mRecyclerView.setHasFixedSize(true);
+//        mRecyclerView.setHasFixedSize(true);
 
         if (attributeSet != null) {
             TypedArray a = getContext().obtainStyledAttributes(attributeSet, R.styleable.EventRecyclerViewWithHeader);
