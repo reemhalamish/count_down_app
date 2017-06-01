@@ -22,5 +22,6 @@ public class User {
 
     public User() {
         phones = new HashMap<>();
+        eventSubscribed = new HashMap<>();
     }
 }

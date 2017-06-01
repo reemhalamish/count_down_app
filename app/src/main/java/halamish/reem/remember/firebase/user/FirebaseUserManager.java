@@ -21,36 +21,40 @@ import lombok.Getter;
 
 
 public class FirebaseUserManager {
+    public interface OnUserConnectedCallback {
+        void onUserConnected();
+    }
+
     private static final String TAG = FirebaseUserManager.class.getSimpleName();
     @Getter private static FirebaseUserManager manager;
-    public static void init(Context rememberApp) {
-        manager = new FirebaseUserManager();
+    public static void init(OnUserConnectedCallback callback) {
+        manager = new FirebaseUserManager(callback);
     }
 
     private FirebaseAuth mAuth;
 
-    private FirebaseUserManager() {
+    private FirebaseUserManager(OnUserConnectedCallback callback) {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            connectAnonymously();
+            connectAnonymously(callback);
+        } else {
+            callback.onUserConnected();
         }
     }
 
 
 
-    private void connectAnonymously() {
+    private void connectAnonymously(OnUserConnectedCallback callback) {
         mAuth.signInAnonymously()
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInAnonymously:success");
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInAnonymously:failure", task.getException());
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInAnonymously:success");
+                        callback.onUserConnected();
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInAnonymously:failure", task.getException());
                     }
                 });
     }

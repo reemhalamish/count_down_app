@@ -1,15 +1,10 @@
 package halamish.reem.remember;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 
-import com.google.firebase.FirebaseApp;
-
-import halamish.reem.remember.firebase.db.FirebaseDbManager;
-import halamish.reem.remember.firebase.notification.FirebaseTokenService;
-import halamish.reem.remember.firebase.storage.FirebaseStorageManager;
-import halamish.reem.remember.firebase.user.FirebaseUserManager;
+import halamish.reem.remember.firebase.FirebaseInitiationController;
 import lombok.Getter;
 
 /**
@@ -23,6 +18,8 @@ import lombok.Getter;
 
 public class RememberApp extends Application {
     private static final String TAG = RememberApp.class.getSimpleName();
+
+    @SuppressLint("StaticFieldLeak")
     @Getter private static Context appContext;
 
 
@@ -34,17 +31,21 @@ public class RememberApp extends Application {
     }
 
     public static void init(Context context) {
-        Log.d(TAG, "before init");
         LocalStorage.init(context);
-        LocalDB.init(context);
-        Util.username = LocalDB.getManager().getUserName();
+        LocalRam.getManager().setUsername(LocalStorageUsernamePhone.getManager().getUserName());
 
-        FirebaseApp.initializeApp(context);
-        FirebaseUserManager.init(context);
-        FirebaseDbManager.init(context);
-        FirebaseTokenService.updateTokenInServer();
-        FirebaseStorageManager.init(context);
+        FirebaseInitiationController.init(context);
 
-        Log.d(TAG, "after init");
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= TRIM_MEMORY_RUNNING_MODERATE) {
+            LocalRam.getManager().removeAllImages();
+            if (level >= TRIM_MEMORY_BACKGROUND) {
+                LocalRam.getManager().removeAllThumbnails();
+            }
+        }
     }
 }

@@ -11,20 +11,18 @@ import lombok.Getter;
 
 /**
  * Created by Re'em on 5/19/2017.
+ *
+ * is used to be a gate between the LocalStorage and the rest of the world
  */
 
 @AllArgsConstructor
-public class LocalDB {
+public class LocalStorageUsernamePhone {
     private static final java.lang.String KEY_USERNAME = "rememberapp@key_username";
 
-    @Getter private static LocalDB manager;
-    private Context context;
-    public static void init(Context context) {
-        manager = new LocalDB(context);
-    }
+    @Getter private static LocalStorageUsernamePhone manager  = new LocalStorageUsernamePhone();
 
     @SuppressLint("HardwareIds")
-    public String getPhoneConstId() {
+    public String getPhoneConstId(Context context) {
 
         String androidId = Secure.getString(context.getContentResolver(),
                 Secure.ANDROID_ID);
@@ -42,7 +40,6 @@ public class LocalDB {
 
     public void setUserName(String newUsername) {
         LocalStorage.getManager().putString(KEY_USERNAME, newUsername);
-        Util.username = newUsername;
     }
 
 

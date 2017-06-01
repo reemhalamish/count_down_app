@@ -1,25 +1,18 @@
 package halamish.reem.remember.view.event_recycler;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import halamish.reem.remember.LocalRam;
 import halamish.reem.remember.R;
-import halamish.reem.remember.RememberApp;
+import halamish.reem.remember.activity.main.ImageViewDialog;
 import halamish.reem.remember.firebase.db.entity.Event;
-import halamish.reem.remember.firebase.storage.FirebaseStorageManager;
-import lombok.AllArgsConstructor;
 
 import static android.graphics.BitmapFactory.decodeByteArray;
 
@@ -32,10 +25,10 @@ import static android.graphics.BitmapFactory.decodeByteArray;
 
 @SuppressLint("NewApi")
 @SuppressWarnings("JavaDoc")
-@AllArgsConstructor
-public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
+public class EventAdapter extends RecyclerView.Adapter<ViewHolder> implements LocalRam.OnNewThumbnailInserted {
 
     private static final String TAG = EventAdapter.class.getSimpleName();
+
 
     public interface OnStarPress {
         default void onPressView(Event event){}
@@ -48,8 +41,18 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
     private boolean isStarOnAllEvents;
     private boolean isStarVisibleAllEvents;
     private OnStarPress callbacks;
-    private static Map<String, Bitmap> eventIdToBitmap = new HashMap<>();
+    private Context context;
+    private boolean isInEditMode;
 
+    EventAdapter(List<Event> events, boolean isStarOnAllEvents, boolean isStarVisibleAllEvents, OnStarPress callbacks, Context context, boolean isInEditMode) {
+        this.events = events;
+        this.isStarOnAllEvents = isStarOnAllEvents;
+        this.isStarVisibleAllEvents = isStarVisibleAllEvents;
+        this.callbacks = callbacks;
+        this.context = context;
+        this.isInEditMode = isInEditMode;
+        if (!isInEditMode) startThumbnailListening();
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -62,30 +65,7 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
         Event event = events.get(position);
         holder.tvTitle.setText(event.getTitle());
         holder.cdvDays.setCountdown((int) event.get_local_CountDownDays(), (int) event.get_local_CountDownHours());
-        Bitmap icon = eventIdToBitmap.get(event.getUniqueId());
-        if (icon != null) holder.civPicture.setImageBitmap(icon);
-        else {
-            FirebaseStorageManager.OnPictureReadyCallback callback = new FirebaseStorageManager.OnPictureReadyCallback() {
-                @Override
-                public void onPicReady(String eventId, byte[] picture, int height, int width) {
-                    Log.d(TAG, "picture got in! for item " + position);
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    Bitmap icon = BitmapFactory.decodeByteArray(picture, 0, picture.length);
-                    eventIdToBitmap.put(eventId, icon);
-                    notifyItemChanged(holder.getAdapterPosition());
-                }
 
-                @Override
-                public void onError(Exception exception) {
-                    exception.printStackTrace();
-                    // just try again!
-                    notifyItemChanged(holder.getAdapterPosition()); // so it will call the storage manager again
-                }
-            };
-
-            FirebaseStorageManager.getManager().getLowDensPictureUrl(event.getUniqueId(), callback);
-        }
 
         if (isStarVisibleAllEvents) {
             holder.ivStar.setVisibility(View.VISIBLE);
@@ -96,7 +76,7 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
                 if (holder.starStateOn) {
                     callbacks.onStarOnPressedOff(eventWhenPressed);
                 } else {
-                        callbacks.onStarOffPressedOn(eventWhenPressed);
+                    callbacks.onStarOffPressedOn(eventWhenPressed);
                 }
 
                 holder.flipStarState(); // so that next time it will be opposite
@@ -106,6 +86,20 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
         } else { // isStarVisibleAllEvents is false
             holder.ivStar.setVisibility(View.GONE);
         }
+
+        if (isInEditMode) return;
+        Bitmap icon = LocalRam.getManager().getThumbnail(event.getUniqueId());
+        if (icon != null) {
+            holder.civPicture.setImageBitmap(icon);
+            holder.civPicture.setOnClickListener(view -> {
+                ImageViewDialog dialog = new ImageViewDialog(context);
+                dialog.setCancelable(true);
+                dialog.show(icon);
+            });
+        } else {
+            holder.civPicture.setOnClickListener(null);
+        }
+
 
         holder.vMainItem.setOnClickListener(view -> callbacks.onPressView(events.get(holder.getAdapterPosition())));
     }
@@ -141,4 +135,41 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         // todo not always working
     }
+
+    /**
+     * remove the prev event and insert the new one
+     * @param prevEvent
+     * @param updatedEvent
+     */
+    public void update(Event prevEvent, Event updatedEvent) {
+        int prevEventIndex = events.indexOf(prevEvent);
+        if (prevEventIndex == -1) return;
+
+        events.remove(prevEventIndex);
+        events.add(prevEventIndex, updatedEvent);
+        notifyItemChanged(prevEventIndex);
+    }
+
+
+
+    public void startThumbnailListening() {
+        LocalRam.getManager().registerNewCallback(this);
+    }
+
+    public void stopThumbnailListening() {
+        LocalRam.getManager().removeCallback(this);
+    }
+
+    @Override
+    public boolean thumbnailReady(String eventId, Bitmap thumbnail) {
+        int eventIndex = -1;
+        for (Event event : events)
+            if (event.getUniqueId().equals(eventId))
+                eventIndex = events.indexOf(event);
+        if (eventIndex != -1){
+            notifyItemChanged(eventIndex);
+        }
+        return false;
+    }
+
 }

@@ -9,8 +9,6 @@ import halamish.reem.remember.firebase.db.entity.User;
  */
 
 public class Util {
-    public static String username;
-    public static User user;
 
     public static AtomicInteger uniqueIntNumber = new AtomicInteger(1024);
 

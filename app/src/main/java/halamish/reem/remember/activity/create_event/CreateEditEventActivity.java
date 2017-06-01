@@ -1,9 +1,10 @@
-package halamish.reem.remember.activity_create_event;
+package halamish.reem.remember.activity.create_event;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,28 +13,34 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Arrays;
 import java.util.Calendar;
 
+import halamish.reem.remember.LocalRam;
 import halamish.reem.remember.R;
-import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
-import halamish.reem.remember.firebase.db.entity.PartiallyEventForGui;
 import halamish.reem.remember.view.ViewUtil;
 
 /**
  * Created by Re'em on 5/20/2017.
+ *
+ * activity to update (create new \ edit) an event
  */
 
-public class CreateEventActivity extends AppCompatActivity {
-    public static final String NEW_CREATED_EVENT = "event_new_created";
-    private static final String TAG = CreateEventActivity.class.getSimpleName();
+public class CreateEditEventActivity extends AppCompatActivity {
+    public static final String OUTPUT_EVENT = "output_event_updated@CreateEditEvent";
+    public static final String OUTPUT_IS_NEW = "output_is_new@CreateEditEvent";
+    public static final String INPUT_IS_NEW = "input_is_new@CreateEditEvent";
+    public static final String INPUT_EVENT = "input_event_in@CreateEditEvent";
+    private static final String BUNDLE_EVENT_STARTING_TO_WORK = "BUNDLE_EVENT_STARTING_TO_WORK@CreateEditEvent";
+    private static final String BUNDLE_EVENT_IS_NEW =  "EVENT_IS_NEW@CreateEditEvent";
+    private static final String TAG = CreateEditEventActivity.class.getSimpleName();
 
     ImageView ivPictureAdd;
     View ivClearPicture;
@@ -49,35 +56,36 @@ public class CreateEventActivity extends AppCompatActivity {
     ImageView ivPublic;
     TextView tvPublic;
 
-    // todo add "isPublic" boolean!
-
     //    int purpleColor;
-    int almostBlackColor;
+    int textSecondaryColor;
     int accentColor;
     Drawable imgVectorPublic, imgVectorPrivate;
     WorkWithPicture pictureWorker;
 
-    //    @State
-    String mDate = "2017/08/21"; // January is 0, December is 11, August is 7
-    //    @State
-    String mTime = "19:00";
-    EventNotificationPolicy mPolicy = EventNotificationPolicy.NOTIFY_WEEKLY;
-    boolean isPublic = false;
+    boolean isNewEvent;
+
+    Event event;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            event = (Event) savedInstanceState.get(BUNDLE_EVENT_STARTING_TO_WORK);
+            isNewEvent = savedInstanceState.getBoolean(BUNDLE_EVENT_IS_NEW);
+        } else {
+            event = (Event) getIntent().getSerializableExtra(INPUT_EVENT);
+            isNewEvent = getIntent().getBooleanExtra(BUNDLE_EVENT_IS_NEW, false);
+        }
         setContentView(R.layout.activity_create_event);
 
-//        purpleColor = ContextCompat.getColor(this, R.color.purple500);
-        almostBlackColor = ContextCompat.getColor(this, R.color.secondary_text);
+        textSecondaryColor = ContextCompat.getColor(this, R.color.secondary_text);
         accentColor = ContextCompat.getColor(this, R.color.accent);
-//        Icepick.restoreInstanceState(this, savedInstanceState);
+
+        isNewEvent = getIntent().getBooleanExtra(INPUT_IS_NEW, true);
+
+
         findViews();
-        setDefaultValuesTextViews();
-
-//        changeEditTextsColor();
-
+        setDefaultValues();
         setListenerNtfc();
         setListenerTime();
         setListenerDate();
@@ -91,7 +99,7 @@ public class CreateEventActivity extends AppCompatActivity {
 
     private void setPictureListenerAndStartValues() {
         ivClearPicture.setOnClickListener(view -> {
-            int padding24Dp = (int) ViewUtil.dpToPixel(CreateEventActivity.this, 24);
+            int padding24Dp = (int) ViewUtil.dpToPixel(CreateEditEventActivity.this, 24);
             ivPictureAdd.setPadding(padding24Dp, padding24Dp, padding24Dp, padding24Dp);
             ivPictureAdd.setColorFilter(accentColor);
             ivPictureAdd.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
@@ -100,13 +108,17 @@ public class CreateEventActivity extends AppCompatActivity {
             ivClearPicture.setVisibility(View.GONE);
         });
 
-
-        pictureWorker = new WorkWithPicture(image -> {
+        WorkWithPicture.OnPictureCroppedAndReadyCallback callback = image -> {
             ivPictureAdd.setColorFilter(null);
             ivPictureAdd.setScaleType(ImageView.ScaleType.CENTER_CROP);
             ivPictureAdd.setImageBitmap(image);
             ivPictureAdd.setPadding(0,0,0,0);
             ivClearPicture.setVisibility(View.VISIBLE);
+        };
+        pictureWorker = new WorkWithPicture(callback);
+        LocalRam.getManager().requestPicture(event.getUniqueId(), (eventId, image) -> {
+            if (eventId.equals(event.getUniqueId())) {callback.onPictureReady(image);return true;}
+            return false;
         });
 
         ivPictureAdd.setOnClickListener(view -> pictureWorker.getPictures(this));
@@ -114,10 +126,21 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
 
-    private void setDefaultValuesTextViews() {
-        tvTime.setText(mTime);
-        tvDate.setText(mDate);
-        tvNtfc.setText(R.string.dont_notify);
+    private void setDefaultValues() {
+        if (isNewEvent) setTitle(R.string.create_new_event);
+        else setTitle(R.string.edit_event);
+        tvTime.setText(event.getTime());
+        tvDate.setText(event.getDate());
+        tvNtfc.setText(EventNotificationPolicy.fromString(event.getCreatorNtfcPolicy()).asStringResource());
+        if (event.isPublic()) {
+            tvPublic.setText(R.string.public_);
+            ivPublic.setImageResource(R.drawable.ic_public_black_24dp);
+        } else {
+            tvPublic.setText(R.string.private_);
+            ivPublic.setImageResource(R.drawable.ic_fingerprint_black_24dp);
+        }
+        edtTitle.setText(event.getTitle());
+        edtBody.setText(event.getBody());
     }
 
     /**
@@ -126,44 +149,72 @@ public class CreateEventActivity extends AppCompatActivity {
      */
     private void setListenerFab() {
         fab.setOnClickListener(view -> {
+            // firstly - remove the keyboard
+            View focusedView = getCurrentFocus();
+            if (focusedView != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+
             String title = edtTitle.getText().toString();
             if (title.isEmpty()) {
-                Toast.makeText(CreateEventActivity.this, R.string.please_provide_title, Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateEditEventActivity.this, R.string.please_provide_title, Toast.LENGTH_SHORT).show();
+                edtTitle.setHintTextColor(Color.RED);
                 return;
+            } else {
+                edtTitle.setHintTextColor(textSecondaryColor);
             }
-            String body = edtBody.getText().toString();
-            String dateToSave = mDate;
-            String timeToSave = mTime;
-            String dateAndTime = dateToSave + " " + timeToSave;
-            PartiallyEventForGui newbie =
-                    new PartiallyEventForGui(
-                            dateAndTime,
-                            title,
-                            body,
-                            Util.username,
-                            mPolicy.toString(),
-                            isPublic
-                    );
 
-            pictureWorker.uploadPicturesQuietlyInBg(newbie.getEventId());
+            String date = event.getDate();
+            if (date == null || date.equals("")) {
+                Toast.makeText(this, "Please Choose date!", Toast.LENGTH_SHORT).show();
+                ivDate.setColorFilter(Color.RED);
+                tvDate.setHintTextColor(Color.RED);
+                return;
+            } else {
+                ivDate.setColorFilter(textSecondaryColor);
+                tvDate.setHintTextColor(textSecondaryColor);
+            }
+
+            String time = event.getTime();
+            if (time == null || time.equals("")) {
+                Toast.makeText(this, "Please Choose time!", Toast.LENGTH_SHORT).show();
+                ivTime.setColorFilter(Color.RED);
+                tvTime.setHintTextColor(Color.RED);
+                return;
+            } else {
+                ivTime.setColorFilter(textSecondaryColor);
+                tvTime.setHintTextColor(textSecondaryColor);
+            }
+
+
+            event.setTitle(title);
+
+            String body = edtBody.getText().toString();
+            event.setBody(body);
+
+
+
+            pictureWorker.uploadPicturesQuietlyInBg(event.getUniqueId());
 
             Intent backIntent = new Intent();
-            backIntent.putExtra(NEW_CREATED_EVENT, newbie);
+            backIntent.putExtra(OUTPUT_EVENT, event);
+            backIntent.putExtra(OUTPUT_IS_NEW, isNewEvent);
             setResult(RESULT_OK, backIntent);
 
 
-            CreateEventActivity.this.supportFinishAfterTransition();
+            CreateEditEventActivity.this.supportFinishAfterTransition();
         });
 
     }
-
-    private void changeEditTextsColor(int color) {
-        for (EditText editText : Arrays.asList(edtTitle, edtBody)) {
-            editText.getBackground()
-                    .mutate()
-                    .setColorFilter(color,PorterDuff.Mode.SRC_ATOP);
-        }
-    }
+//
+//    private void changeEditTextsColor(int color) {
+//        for (EditText editText : Arrays.asList(edtTitle, edtBody)) {
+//            editText.getBackground()
+//                    .mutate()
+//                    .setColorFilter(color,PorterDuff.Mode.SRC_ATOP);
+//        }
+//    }
 
     private void setListenerPublic() {
         imgVectorPrivate = ViewUtil.getVectorAsset(this, R.drawable.ic_fingerprint_black_24dp);
@@ -172,15 +223,17 @@ public class CreateEventActivity extends AppCompatActivity {
         View.OnClickListener listener = view -> {
             CharSequence[] arrayString = {getString(R.string.public_), getString(R.string.private_)};
             boolean[] arrayAnswer = {true, false};
+            int curChoiceIndex = event.isPublic() ? 0 : 1;
+
             Drawable[] arrayPicture = {imgVectorPublic, imgVectorPrivate};
-            new AlertDialog.Builder(CreateEventActivity.this, R.style.activityCreate_DialogTheme)
+            new AlertDialog.Builder(CreateEditEventActivity.this, R.style.activityCreate_DialogTheme)
                     .setTitle(R.string.wanna_public_event)
-                    .setSingleChoiceItems(arrayString, 0, (dialog, which) -> {
-                        isPublic = arrayAnswer[which];
+                    .setSingleChoiceItems(arrayString, curChoiceIndex, (dialog, which) -> {
+                        event.setPublic(arrayAnswer[which]);
                         tvPublic.setText(arrayString[which]);
-                        tvPublic.setTextColor(almostBlackColor);
+                        tvPublic.setTextColor(textSecondaryColor);
                         ivPublic.setImageDrawable(arrayPicture[which]);
-                        ivPublic.setColorFilter(almostBlackColor);
+                        ivPublic.setColorFilter(textSecondaryColor);
                         dialog.dismiss();
                     })
                     .create()
@@ -196,13 +249,19 @@ public class CreateEventActivity extends AppCompatActivity {
         View.OnClickListener ntfcPolicyListener = view -> {
             CharSequence[] arrayString = {getString(R.string.notify_daily), getString(R.string.notify_weekly), getString(R.string.dont_notify)};
             EventNotificationPolicy[] arrayNotification = {EventNotificationPolicy.NOTIFY_DAILY, EventNotificationPolicy.NOTIFY_WEEKLY, EventNotificationPolicy.DONT_NOTIFY};
-            new AlertDialog.Builder(CreateEventActivity.this, R.style.activityCreate_DialogTheme)
+            int curChoiceIndex = -1;
+            EventNotificationPolicy ntfc = EventNotificationPolicy.fromString(event.getCreatorNtfcPolicy());
+            if (ntfc.equals(EventNotificationPolicy.NOTIFY_DAILY)) curChoiceIndex = 0;
+            if (ntfc.equals(EventNotificationPolicy.NOTIFY_WEEKLY)) curChoiceIndex = 1;
+            if (ntfc.equals(EventNotificationPolicy.DONT_NOTIFY)) curChoiceIndex = 2;
+
+            new AlertDialog.Builder(CreateEditEventActivity.this, R.style.activityCreate_DialogTheme)
                     .setTitle(R.string.select_notification_timing)
-                    .setSingleChoiceItems(arrayString, -1, (dialog, which) -> {
-                        mPolicy = arrayNotification[which];
+                    .setSingleChoiceItems(arrayString, curChoiceIndex, (dialog, which) -> {
+                        event.setCreatorNtfcPolicy(arrayNotification[which].toString());
                         tvNtfc.setText(arrayString[which]);
-                        tvNtfc.setTextColor(almostBlackColor);
-                        ivNtfc.setColorFilter(almostBlackColor);
+                        tvNtfc.setTextColor(textSecondaryColor);
+                        ivNtfc.setColorFilter(textSecondaryColor);
                         dialog.dismiss();
                     })
                     .create()
@@ -215,7 +274,7 @@ public class CreateEventActivity extends AppCompatActivity {
 
     private void setListenerDate() {
         View.OnClickListener dateListener = view -> {
-            Calendar calendar = Event.toCalendar(mDate);
+            Calendar calendar = event.asCalendar();
             int year, month, day;
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
@@ -223,10 +282,10 @@ public class CreateEventActivity extends AppCompatActivity {
             DatePickerDialog dialog = new DatePickerDialog(this,
                     R.style.activityCreate_DialogTheme,
                     (datePicker, year2, month2, day2) -> {
-                        mDate = getDateAsString(year2, month2, day2);
-                        tvDate.setText(mDate);
-                        tvDate.setTextColor(almostBlackColor);
-                        ivDate.setColorFilter(almostBlackColor);
+                        event.setDate(Event.getDateAsString(year2, month2, day2));
+                        tvDate.setText(event.getDate());
+                        tvDate.setTextColor(textSecondaryColor);
+                        ivDate.setColorFilter(textSecondaryColor);
                     },
                     year,
                     month,
@@ -244,21 +303,14 @@ public class CreateEventActivity extends AppCompatActivity {
                 this,
                 R.style.activityCreate_DialogTheme,
                 (timePicker, hour, minute) -> {
-                    String sHour = String.valueOf(hour);
-                    if (hour < 10)
-                        sHour = "0" + sHour;
-                    String sMin = String.valueOf(minute);
-                    if (minute < 10)
-                        sMin = "0" + sMin;
+                    event.setTime(Event.getTimeAsString(hour, minute));
+                    tvTime.setText(event.getTime());
 
-                    mTime = sHour + ":" + sMin;
-                    tvTime.setText(mTime);
-
-                    tvTime.setTextColor(almostBlackColor);
-                    ivTime.setColorFilter(almostBlackColor);
+                    tvTime.setTextColor(textSecondaryColor);
+                    ivTime.setColorFilter(textSecondaryColor);
                 },
-                getHourFromTimeTextView(),
-                getMinuteFromTimeTextView(),
+                event.get_local_Hours(),
+                event.get_local_Minutes(),
                 false)
                 .show();
 
@@ -281,37 +333,6 @@ public class CreateEventActivity extends AppCompatActivity {
         tvPublic = (TextView) findViewById(R.id.tv_create_public);
         fab = (FloatingActionButton) findViewById(R.id.fab_create);
     }
-//
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-////        Icepick.saveInstanceState(this, outState);
-//    }
-
-    private int getMinuteFromTimeTextView() {
-        return Integer.parseInt(tvTime.getText().toString().substring(3));
-    }
-    private int getHourFromTimeTextView() {
-        return Integer.parseInt(tvTime.getText().toString().substring(0,2));
-    }
-
-
-    /**
-     *
-     * @param year
-     * @param month ranges [0, 11]
-     * @param day
-     * @return
-     */
-    public static String getDateAsString(int year, int month, int day) {
-        month++; // now ranges [1, 12]
-        String sYear = String.valueOf(year);
-        String sMonth = String.valueOf(month);
-        if (month < 10) sMonth = "0" + sMonth;
-        String sDay = String.valueOf(day);
-        if (day < 10) sDay = "0" + sDay;
-        return sYear + "/" + sMonth + "/" + sDay;
-    }
 
     /**
      * Dispatch incoming result to the correct fragment.
@@ -323,5 +344,12 @@ public class CreateEventActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         pictureWorker.onResult(requestCode, resultCode, data, this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(BUNDLE_EVENT_STARTING_TO_WORK, event);
+        outState.putBoolean(BUNDLE_EVENT_IS_NEW, isNewEvent);
     }
 }

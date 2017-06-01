@@ -1,12 +1,14 @@
 package halamish.reem.remember.firebase.notification;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
-import halamish.reem.remember.LocalDB;
-import halamish.reem.remember.Util;
+import halamish.reem.remember.LocalStorageUsernamePhone;
+import halamish.reem.remember.LocalRam;
+import halamish.reem.remember.firebase.FirebaseInitiationController;
 import halamish.reem.remember.firebase.db.FirebaseDbManager;
 
 /**
@@ -18,14 +20,15 @@ public class FirebaseTokenService extends FirebaseInstanceIdService {
 
     @Override
     public void onTokenRefresh() {
-        updateTokenInServer();
+        updateTokenInServer(this);
     }
 
-    public static void updateTokenInServer() {
-        String username = Util.username;
-        String phoneId = LocalDB.getManager().getPhoneConstId();
+    public static void updateTokenInServer(Context context) {
+        String username = LocalRam.getManager().getUsername();
+        String phoneId = LocalStorageUsernamePhone.getManager().getPhoneConstId(context);
         String firebaseId = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, firebaseId);
-        FirebaseDbManager.getManager().uploadUserPhoneUpdate(username, phoneId, firebaseId);
+
+        FirebaseInitiationController.getManager().whenReady(() -> FirebaseDbManager.getManager().uploadUserPhoneUpdate(username, phoneId, firebaseId));
     }
 }

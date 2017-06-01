@@ -27,9 +27,8 @@ import java.util.Map;
 import halamish.reem.remember.R;
 import halamish.reem.remember.RememberApp;
 import halamish.reem.remember.firebase.db.entity.Event;
-import halamish.reem.remember.firebase.db.entity.PartiallyEventForGui;
-import halamish.reem.remember.firebase.storage.FirebaseStorageManager;
 import halamish.reem.remember.view.HeaderView;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 
 /**
  * Created by Re'em on 5/20/2017.
@@ -95,9 +94,9 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
         if (isInEditMode()) {
             List<Event> eventList = new ArrayList<>();
             for (int i = 0; i < mEditModeNumItems; i++) {
-                eventList.add(new Event(new PartiallyEventForGui("2017/05/21 19:00", "Wedding!", "We are getting married :)" ,"reem.halamish@gmail.com", "dont", "123123", true, true)));
+                eventList.add(Event.createMock());
             }
-            startWhenInfoAlreadyInXml(eventList, null);
+            startWhenInfoAlreadyInXml(eventList, null, null);
         }
     }
 
@@ -116,31 +115,28 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
         mTvNothingHere.setText(nothingTextResId);
     }
 
-    public void start(List<Event> data, boolean shouldStarVisible, boolean shouldStarBeOn, EventAdapter.OnStarPress callbacks) {
+    public void start(List<Event> data, Context context, boolean shouldStarVisible, boolean shouldStarBeOn, EventAdapter.OnStarPress callbacks) {
         List<Event> copy = new ArrayList<>(data);
-        mAdapter = new EventAdapter(copy, shouldStarBeOn, shouldStarVisible, callbacks);
+        mAdapter = new EventAdapter(copy, shouldStarBeOn, shouldStarVisible, callbacks, context, isInEditMode());
         eventIdToBitmap = new HashMap<>();
-        for (Event event : copy) {
-
-        }
-
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
 
         updateVisibility();
     }
 
-    public void startWhenInfoAlreadyInXml(List<Event> data, EventAdapter.OnStarPress callbacks) {
-        start(data, mStarVisible, mStarOn, callbacks);
+    public void startWhenInfoAlreadyInXml(List<Event> data, Context context, EventAdapter.OnStarPress callbacks) {
+        start(data, context, mStarVisible, mStarOn, callbacks);
     }
 
 
     private void updateVisibility() {
         if (mAdapter.getItemCount() == 0) {
-            mRecyclerView.setVisibility(GONE);
+//            mRecyclerView.setVisibility(GONE);
             mTvNothingHere.setVisibility(VISIBLE);
         } else {
-            mRecyclerView.setVisibility(VISIBLE);
+//            mRecyclerView.setVisibility(VISIBLE);
             mTvNothingHere.setVisibility(GONE);
         }
     }
@@ -152,9 +148,39 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
 
     public void removeAt(int indexInHot) {
         mAdapter.removeAt(indexInHot);
+        updateVisibility();
     }
 
     public void remove(Event event) {
         mAdapter.remove(event);
+        updateVisibility();
+    }
+
+    /**
+     * is called when the activity's onStart() is called
+     */
+    public void onStart() {
+        if (mAdapter != null) {
+            // it can be null if there was time until the recyclerView was created, and onStart was already called
+            mAdapter.startThumbnailListening();
+        }
+    }
+
+    /**
+     * is called when the activity's onStop() is called
+     */
+    public void onStop() {
+        mAdapter.stopThumbnailListening();
+
+    }
+
+    /**
+     * remove the prev event and insert the new one
+     *
+     * @param prevEvent
+     * @param updatedEvent
+     */
+    public void update(Event prevEvent, Event updatedEvent) {
+        mAdapter.update(prevEvent, updatedEvent);
     }
 }

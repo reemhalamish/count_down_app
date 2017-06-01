@@ -22,11 +22,11 @@
                 android:layout_height="wrap_content"
                 android:hint="Title (what is the event?)"
                 android:maxLines="1"
-                android:layout_marginBottom="16dp"
+                android:layout_margin="16dp"
                 android:textSize="@dimen/txt_large"
                 android:textColorHint="@color/divider"
                 android:textColor="@color/secondary_text"
-                android:layout_margin="16dp"
+                android:background="@android:color/transparent"
                 />
 
             <!--<View-->
@@ -42,16 +42,16 @@
                 android:id="@+id/iv_create_add_picture"
 
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="100dp"
                 android:background="@drawable/rect_portrait"
                 app:srcCompat="@drawable/ic_add_a_photo_black_24dp"
                 android:layout_alignParentEnd="true"
                 android:scaleType="fitCenter"
                 android:elevation="5dp"
                 android:layout_below="@+id/edt_create_title"
-                android:layout_marginStart="32dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginEnd="32dp"
-                android:padding="24dp"
+                android:padding="20dp"
                 />
 
             <halamish.reem.remember.view.MaterialCircleImageView
@@ -66,7 +66,6 @@
                 android:src="@drawable/ic_clear_white_24dp"
                 android:padding="2dp"
                 android:id="@+id/iv_create_clear_picture"
-                android:visibility="gone"
                 />
 
             <!--<View-->
@@ -75,33 +74,45 @@
                 <!--android:layout_height="1dp"-->
                 <!--android:background="@color/divider"-->
                 <!--android:layout_below="@+id/iv_create_add_picture"/>-->
-            <EditText
-                android:id="@+id/edt_create_body"
-                android:layout_width="match_parent"
-                android:layout_height="126.5dp"
-                android:ellipsize="end"
-                android:textColorHint="@color/divider"
-                android:textColor="@color/secondary_text"
-
-                android:hint="Want to describe your countdown a little bit more?\n\nIt will help users relate to your event!"
+            <ImageView
 
                 android:layout_below="@+id/iv_create_add_picture"
+                android:id="@+id/iv_create_icon_body"
 
-                android:gravity="start|top"
+                style="@style/activityView_ImageView"
 
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="16dp"
-                android:layout_marginTop="16dp"
-                android:textSize="@dimen/txt_normal"
+                app:srcCompat="@drawable/ic_comment_black_24dp"
+                android:layout_margin="16dp"
                 />
+
+            <EditText
+                android:id="@+id/edt_create_body"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:hint="@string/hint_body_wanna_describe_your_countdown_n_nit_will_help_users_relate_to_your_event"
+                android:textColorHint="@color/divider"
+                android:textColor="@color/secondary_text"
+                android:textSize="@dimen/txt_normal"
+                android:layout_toEndOf="@+id/iv_create_icon_body"
+                android:layout_alignTop="@+id/iv_create_icon_body"
+                android:ellipsize="end"
+                android:paddingTop="3dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/transparent"
+                android:gravity="start|top"
+                />
+
 
             <View
                 android:id="@+id/v_create_space_1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/divider"
-                android:layout_below="@+id/edt_create_body"/>
+                android:layout_below="@+id/edt_create_body"
+                android:layout_marginTop="16dp"
+                />
 
             <ImageView
                 android:id="@+id/iv_create_icon_date"
@@ -117,7 +128,7 @@
                 android:id="@+id/tv_create_date"
 
                 style="@style/activityCreate_TextView"
-                android:text="21/08/2017"
+                android:hint="@string/what_s_the_date"
 
                 android:layout_toEndOf="@+id/iv_create_icon_date"
                 android:layout_alignTop="@+id/iv_create_icon_date"
@@ -144,7 +155,7 @@
 
                 style="@style/activityCreate_TextView"
 
-                android:text="21:00"
+                android:hint="@string/in_what_time"
 
                 android:layout_toEndOf="@+id/iv_create_icon_time"
                 android:layout_alignTop="@+id/iv_create_icon_time"
@@ -181,7 +192,7 @@
 
                 style="@style/activityCreate_TextView"
 
-                android:text="@string/notify_weekly"
+                android:hint="@string/wanna_notifications"
 
                 android:layout_toEndOf="@+id/iv_create_icon_ntfc"
                 android:layout_alignTop="@+id/iv_create_icon_ntfc"
@@ -220,7 +231,7 @@
 
                 style="@style/activityCreate_TextView"
 
-                android:text="@string/private_"
+                android:hint="@string/public_or_private"
 
                 android:layout_toEndOf="@+id/iv_create_icon_public"
                 android:layout_alignTop="@+id/iv_create_icon_public"
@@ -235,8 +246,8 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_create"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
         app:srcCompat="@drawable/ic_save_black_24dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"

@@ -33,12 +33,12 @@
                /{user1phone2constId} : {user1phone2firebaseRecognizer}
                ...
           /eventSubscribed
-              /event513 : true
-              /event376 : true
+              /event513 : event513user1ntfcPolicy
+              /event376 : event376user1ntfcPolicy
               ...
       /{user2phoneUniqueId}
           /eventSubscribed
-              /event1 : true
+              /event1 : event1user2ntfcPolicy
               ...
           /phones
                /{user2phoneUniqueId} : {user2phoneFirebaseRecognizer}

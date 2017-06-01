@@ -1,9 +1,7 @@
 package halamish.reem.remember.firebase.db;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -19,22 +17,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import halamish.reem.remember.LocalDB;
-import halamish.reem.remember.R;
-import halamish.reem.remember.Util;
+import halamish.reem.remember.LocalStorageUsernamePhone;
+import halamish.reem.remember.LocalRam;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 import halamish.reem.remember.firebase.db.entity.User;
 import lombok.Getter;
 
-import static halamish.reem.remember.firebase.Helper.checkInternet;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestDeleteEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestNewEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUpdateEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUpdatePolicyUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUserPhoneUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUserSubscribeEvent;
-import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUserUnsubscribeDeledEvents;
+import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUserUnsubscribeDeletedEvents;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUserUnsubscribeEvent;
 
 /**
@@ -91,42 +87,39 @@ public class FirebaseDbManager {
 
     @Getter private static FirebaseDbManager manager;
     private DatabaseReference db;
-    private final Context context;
 
-    public static void init(Context rememberApp) {
-        manager = new FirebaseDbManager(rememberApp);
-        manager.requestUserDownload(null);
+    public static void init(OnDbReadyCallback<User> callback) {
+        manager = new FirebaseDbManager();
+        manager.requestUserDownloadRefresh(callback);
     }
 
-    private FirebaseDbManager(Context rememberApp) {
+    private FirebaseDbManager() {
         db = FirebaseDatabase.getInstance().getReference();
-        context = rememberApp;
     }
 
-    public void requestUserDownload(@Nullable OnDbReadyCallback<User> callbackArg) {
+    public void requestUserDownloadRefresh(@Nullable OnDbReadyCallback<User> callbackArg) {
         final OnDbReadyCallback<User> callback;
         if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
-        String username = Util.username;
+        String username = LocalRam.getManager().getUsername();
         if (username == null) {
             username = db.child(BRANCH_USERS).push().getKey();
-            LocalDB.getManager().setUserName(username);
+            LocalStorageUsernamePhone.getManager().setUserName(username);
+            LocalRam.getManager().setUsername(username);
         }
 
         db
                 .child(BRANCH_USERS)
-                .child(Util.username)
+                .child(LocalRam.getManager().getUsername())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        Util.user = dataSnapshot.getValue(User.class);
-                        if (callback != null) {
-                            callback.onDatabaseFinishedWorking(Util.user);
-                        }
+                        LocalRam.getManager().setUser(dataSnapshot.getValue(User.class));
+                            callback.onDatabaseFinishedWorking(LocalRam.getManager().getUser());
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        callback.onError(new FirebaseDbException(databaseError.getMessage()));
                     }
                 });
     }
@@ -138,7 +131,7 @@ public class FirebaseDbManager {
         db.updateChildren(requestUserPhoneUpload(username, phoneConstId, phoneFirebaseNotificationToken), new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                requestUserDownload(null);
+                requestUserDownloadRefresh(null);
             }
         });
     }
@@ -164,9 +157,14 @@ public class FirebaseDbManager {
         handleNoInternet();
         if (eventToUpload == null) return;
 
-        if (! eventToUpload.getCreator().equals(Util.username)) {
+        if (! eventToUpload.getCreator().equals(LocalRam.getManager().getUsername())) {
             throw new FirebaseDbException.NotEventCreator();
         }
+
+        if (eventToUpload.isPublic)
+            eventToUpload._query_publicSubscribers = Event.QUERY_PUBLIC_SUBSCRIBERS_IS_PUBLIC_NO_SUBSCRIBERS;
+        else
+            eventToUpload._query_publicSubscribers = Event.QUERY_PUBLIC_SUBSCRIBERS_IS_PRIVATE;
 
         uploadToDb(
                 db,
@@ -187,7 +185,11 @@ public class FirebaseDbManager {
 
 
         if (toUpdload == null) return;
-        if (! toUpdload.getCreator().equals(Util.username)) {
+
+        if (toUpdload.isPublic()) toUpdload._query_publicSubscribers = String.valueOf(toUpdload.subscribersAmount);
+        else toUpdload._query_publicSubscribers = Event.QUERY_PUBLIC_SUBSCRIBERS_IS_PRIVATE;
+
+        if (! toUpdload.getCreator().equals(LocalRam.getManager().getUsername())) {
             throw new FirebaseDbException.NotEventCreator();
         }
 
@@ -195,8 +197,8 @@ public class FirebaseDbManager {
 
 
         uploadToDb(db, requestUpdateEventUpload(toUpdload), () -> {
-            if (callback != null) callback.onDatabaseFinishedWorking(toUpdload);
-        }
+                    if (callback != null) callback.onDatabaseFinishedWorking(toUpdload);
+                }
         );
     }
 
@@ -232,7 +234,7 @@ public class FirebaseDbManager {
         if (eventId == null) return;
 
         reqDownloadEvent(eventId, event -> {
-            if (event.getCreator().equals(Util.username)) {
+            if (event.getCreator().equals(LocalRam.getManager().getUsername())) {
                 uploadToDb(db, requestDeleteEventUpload(eventId, event.weeklyAlertDay()), () -> callback.onDatabaseFinishedWorking(null));
             } else {
                 callback.onError(new FirebaseDbException.NotEventCreator());
@@ -271,11 +273,16 @@ public class FirebaseDbManager {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 Event event = mutableData.getValue(Event.class);
                 if (event == null) {
-                    callback.onError(new FirebaseDbException("no such event in the db!"));
+                    callback.onError(new FirebaseDbException("no such event in the db! (key: " + eventId + ")"));
                     return Transaction.success(mutableData);
                 }
 
-                event.setSubscribersAmount(event.getSubscribersAmount() + 1);
+                event.subscribersAmount++;
+                if (event.isPublic()) {
+                    event._query_publicSubscribers = String.valueOf(event.subscribersAmount);
+                } else {
+                    event._query_publicSubscribers = Event.QUERY_PUBLIC_SUBSCRIBERS_IS_PRIVATE;
+                }
 
                 mutableData.setValue(event);
                 return Transaction.success(mutableData);
@@ -287,7 +294,7 @@ public class FirebaseDbManager {
                     callback.onError(new FirebaseDbException(databaseError.toString()));
                 } else {
                     Map<String, Object> updates = requestUpdatePolicyUpload(username, eventId, weeklyAlertDay, policy);
-                    Map<String, Object> updatesSubscribe = requestUserSubscribeEvent(username, eventId);
+                    Map<String, Object> updatesSubscribe = requestUserSubscribeEvent(username, eventId, policy.toString());
                     updates.putAll(updatesSubscribe);
                     uploadToDb(db, updates, () -> callback.onDatabaseFinishedWorking(null));
                 }
@@ -319,7 +326,11 @@ public class FirebaseDbManager {
                     return Transaction.success(mutableData);
                 }
 
-                event.setSubscribersAmount(event.getSubscribersAmount() - 1);
+                event.subscribersAmount--;
+
+                if (event.isPublic) event._query_publicSubscribers = String.valueOf(event.subscribersAmount);
+                else event._query_publicSubscribers = Event.QUERY_PUBLIC_SUBSCRIBERS_IS_PRIVATE;
+
                 mutableData.setValue(event);
                 return Transaction.success(mutableData);
             }
@@ -368,12 +379,17 @@ public class FirebaseDbManager {
                                             String eventWeeklyAlertDay,
                                             String username,
                                             EventNotificationPolicy newPolicy,
-                                            final OnDbReadyCallback<Void> callback) {
+                                            OnDbReadyCallback<Void> callback) {
         handleNoInternet();
+        final OnDbReadyCallback<Void> callbackToUse;
+        if (callback == null)
+            callbackToUse = new DoNothingOnDbReady<>();
+        else
+            callbackToUse = callback;
 
         uploadToDb(db,
                 requestUpdatePolicyUpload(username, eventId, eventWeeklyAlertDay, newPolicy),
-                () -> callback.onDatabaseFinishedWorking(null));
+                () -> callbackToUse.onDatabaseFinishedWorking(null));
 
     }
 
@@ -419,7 +435,8 @@ public class FirebaseDbManager {
     public void requestDownloadHotEvents(OnDbReadyCallback<List<Event>> callback) {
         handleNoInternet();
 
-        db.child(BRANCH_EVENTS).orderByChild("subscribersAmount").limitToFirst(MAX_HOT_EVENTS_SHOW).addListenerForSingleValueEvent(new ValueEventListener() {
+        // todo only public events!
+        db.child(BRANCH_EVENTS).orderByChild("_query_publicSubscribers").startAt(Event.QUERY_PUBLIC_SUBSCRIBERS_IS_PUBLIC_NO_SUBSCRIBERS).limitToFirst(MAX_HOT_EVENTS_SHOW).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Event> retVal = new ArrayList<Event>();
@@ -442,18 +459,22 @@ public class FirebaseDbManager {
     public void requestDownloadAllEventsUserIsSubscribedTo(String username, OnDbReadyCallback<List<Event>> callback) {
         handleNoInternet();
 
-        if (Util.user == null) return;
+        User user = LocalRam.getManager().getUser();
+        if (user == null) {
+            requestUserDownloadRefresh(valueFromFirebase -> requestDownloadAllEventsUserIsSubscribedTo(username, callback));
+            return;
+        }
 
-        if (Util.user.eventSubscribed == null || Util.user.eventSubscribed.size() == 0) {
+        if (user.eventSubscribed == null || user.eventSubscribed.size() == 0) {
             // user has no subscribed events.
             callback.onDatabaseFinishedWorking(new ArrayList<>());
             return;
         }
 
 
-        Map<String, String> allEvents = Util.user.eventSubscribed;
+        Map<String, String> allEvents = user.eventSubscribed;
 
-        Set<String> eventsNoLongerExist = new HashSet<>(allEvents.keySet());
+        Set<String> eventsNoLongerExist = new HashSet<>();
         List<Event> retVal = new ArrayList<>();
 
         for (Map.Entry<String, String> eventIdToSubscriberPolicy: allEvents.entrySet()) {
@@ -464,10 +485,11 @@ public class FirebaseDbManager {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Event fromFirebase = dataSnapshot.getValue(Event.class);
-                    fromFirebase.set_local_subscriberNtfcPolicy(ntfcPolicy);
                     if (fromFirebase == null) {
                         eventsNoLongerExist.add(dataSnapshot.getKey());
                     } else {
+                        fromFirebase.set_local_subscriberNtfcPolicy(ntfcPolicy);
+
                         retVal.add(fromFirebase);
                     }
 
@@ -496,8 +518,8 @@ public class FirebaseDbManager {
 
         uploadToDb(
                 db,
-                requestUserUnsubscribeDeledEvents(username, eventsNoLongerExist),
-                () -> requestUserDownload(null)
+                requestUserUnsubscribeDeletedEvents(username, eventsNoLongerExist),
+                () -> requestUserDownloadRefresh(null)
         );
     }
 
@@ -521,10 +543,10 @@ public class FirebaseDbManager {
      * @return true iff user is in area without internet
      */
     private boolean handleNoInternet() {
-        if (!checkInternet(context)) {
-            Toast.makeText(context, R.string.ux_prompt_no_internet_slower_bg_data, Toast.LENGTH_SHORT).show();
-            return true;
-        }
+//        if (!checkInternet(context)) {
+//            Toast.makeText(context, R.string.ux_prompt_no_internet_slower_bg_data, Toast.LENGTH_SHORT).show();
+//            return true;
+//        }
         return false;
     }
 

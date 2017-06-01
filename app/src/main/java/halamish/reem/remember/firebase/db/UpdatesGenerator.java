@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import halamish.reem.remember.LocalRam;
 import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
@@ -51,10 +52,10 @@ class UpdatesGenerator {
         uploads.put(toFirebaseBranch(BRANCH_EVENTS, eventToUpload.getUniqueId()), eventToUpload);
         switch (policy) {
             case NOTIFY_DAILY:
-                uploads.put(toFirebaseBranch(BRANCH_ALERTS, BRANCH_ALERTS_DAILY, eventToUpload.getUniqueId(), Util.username), true);
+                uploads.put(toFirebaseBranch(BRANCH_ALERTS, BRANCH_ALERTS_DAILY, eventToUpload.getUniqueId(), LocalRam.getManager().getUsername()), true);
                 break;
             case NOTIFY_WEEKLY:
-                uploads.put(toFirebaseBranch(BRANCH_ALERTS, eventToUpload.weeklyAlertDay(), eventToUpload.getUniqueId(), Util.username), true);
+                uploads.put(toFirebaseBranch(BRANCH_ALERTS, eventToUpload.weeklyAlertDay(), eventToUpload.getUniqueId(), LocalRam.getManager().getUsername()), true);
                 break;
             case DONT_NOTIFY: break;
         }
@@ -121,9 +122,9 @@ class UpdatesGenerator {
      * @param eventId
      * @return
      */
-    static Map<String, Object> requestUserSubscribeEvent(String username, String eventId) {
+    static Map<String, Object> requestUserSubscribeEvent(String username, String eventId, String newPolicy) {
         Map<String, Object> updates = new HashMap<>();
-        updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_EVENTS, eventId), true);
+        updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_EVENTS, eventId), newPolicy);
         return updates;
     }
 
@@ -141,7 +142,7 @@ class UpdatesGenerator {
         return updates;
     }
 
-    static Map<String, Object> requestUserUnsubscribeDeledEvents(String username, Collection<String> eventsNoLongerExist) {
+    static Map<String, Object> requestUserUnsubscribeDeletedEvents(String username, Collection<String> eventsNoLongerExist) {
         Map<String, Object> updates = new HashMap<>();
         for (String eventId : eventsNoLongerExist) {
             updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_EVENTS, eventId), null);

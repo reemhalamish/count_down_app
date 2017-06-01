@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Remember</string>
+    <string name="app_name">CountDown</string>
     <string name="days">days</string>
     <string name="hours">hours!</string>
     <string name="before">before</string>
@@ -18,5 +18,15 @@
     <string name="new_event_created">New Event Created!</string>
     <string name="something_went_wrong">Something went wrong. Please try again!</string>
     <string name="ux_prompt_no_internet_slower_bg_data">No internet connectivity! Background Data transfer will be slower</string>
+    <string name="hint_body_wanna_describe_your_countdown_n_nit_will_help_users_relate_to_your_event">Want to describe your countdown?\n\nIt will help users relate to your event!</string>
+    <string name="what_s_the_date">What\'s the date?</string>
+    <string name="in_what_time">in what time?</string>
+    <string name="wanna_notifications">Do you want notifications?</string>
+    <string name="public_or_private">Public or private?</string>
+    <string name="sure_wanna_unsubscribe">Are you sure you want to un-subscribe from this event?</string>
+    <string name="edit_event">Edit event</string>
+    <string name="create_new_event">Create new event</string>
+    <string name="unsubscribed_success">Successfully unrolled from event!</string>
+    <string name="subscribed_success">Successfully subscribed to event!</string>
 
 </resources>

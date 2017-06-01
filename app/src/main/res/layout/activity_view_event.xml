@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:id="@+id/cl_view_main"
+    >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:id="@+id/iv_view_icon_body"
+
+                style="@style/activityView_ImageView"
+
+                app:srcCompat="@drawable/ic_comment_black_24dp"
+                android:layout_margin="16dp"
+                />
+
+            <TextView
+                android:id="@+id/tv_view_body"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text="all the comments go here in a very very long test body just in case to see what's going on in here"
+android:textColor="@color/divider"
+                android:textSize="@dimen/txt_normal"
+                android:layout_toEndOf="@+id/iv_view_icon_body"
+                android:layout_alignTop="@+id/iv_view_icon_body"
+                android:ellipsize="end"
+                android:paddingTop="3dp"
+                android:layout_marginEnd="16dp"
+                />
+
+
+            <View
+                android:id="@+id/v_view_space_1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/tv_view_body"
+                android:layout_marginTop="16dp"
+                />
+
+            <ImageView
+                android:id="@+id/iv_view_icon_date"
+
+                style="@style/activityView_ImageView"
+
+                app:srcCompat="@drawable/ic_today_black_24dp"
+                android:layout_below="@+id/v_view_space_1"
+                android:layout_margin="16dp"
+                />
+
+            <TextView
+                android:id="@+id/tv_view_date"
+
+                style="@style/activityView_TextView"
+                android:text="21/08/2017"
+
+                android:layout_toEndOf="@+id/iv_view_icon_date"
+                android:layout_alignTop="@+id/iv_view_icon_date"
+                android:layout_alignBottom="@+id/iv_view_icon_date"
+                />
+
+            <ImageView
+                android:id="@+id/iv_view_icon_time"
+
+                style="@style/activityView_ImageView"
+
+                app:srcCompat="@drawable/ic_access_time_black_24dp"
+                android:layout_below="@+id/iv_view_icon_date"
+
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+
+                />
+
+            <TextView
+                android:id="@+id/tv_view_time"
+
+                style="@style/activityCreate_TextView"
+
+                android:text="21:00"
+
+                android:layout_toEndOf="@+id/iv_view_icon_time"
+                android:layout_alignTop="@+id/iv_view_icon_time"
+                android:layout_alignBottom="@+id/iv_view_icon_time"
+                />
+
+            <View
+                android:id="@+id/v_view_space_2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/tv_view_time"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                />
+
+            <ImageView
+                android:id="@+id/iv_view_icon_ntfc"
+
+                style="@style/activityView_ImageView"
+
+                app:srcCompat="@drawable/ic_vibration_black_24dp"
+                android:layout_below="@+id/v_view_space_2"
+
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+
+                />
+
+            <TextView
+                android:id="@+id/tv_view_ntfc"
+
+                style="@style/activityCreate_TextView"
+
+                android:text="@string/notify_weekly"
+
+                android:layout_toEndOf="@+id/iv_view_icon_ntfc"
+                android:layout_alignTop="@+id/iv_view_icon_ntfc"
+                android:layout_alignBottom="@+id/iv_view_icon_ntfc"
+                android:paddingTop="2dp"
+                />
+
+            <View
+                android:id="@+id/v_view_space_3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_below="@+id/tv_view_ntfc"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                />
+
+
+            <ImageView
+                android:id="@+id/iv_view_icon_public"
+
+                style="@style/activityView_ImageView"
+
+                app:srcCompat="@drawable/ic_fingerprint_black_24dp"
+                android:layout_below="@+id/v_view_space_3"
+
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+
+                />
+
+            <TextView
+                android:id="@+id/tv_view_public"
+
+                style="@style/activityCreate_TextView"
+
+                android:text="@string/private_"
+
+                android:layout_toEndOf="@+id/iv_view_icon_public"
+                android:layout_alignTop="@+id/iv_view_icon_public"
+                android:layout_alignBottom="@+id/iv_view_icon_public"
+                android:paddingTop="2dp"
+                />
+
+            <ImageView
+                android:id="@+id/iv_view_picture"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/ic_fingerprint_black_24dp"
+                android:layout_below="@+id/iv_view_icon_public"
+                android:layout_marginTop="16dp"
+                android:visibility="invisible"
+                />
+
+            <ProgressBar
+                android:id="@+id/pb_view_loading_picture"
+
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignLeft="@+id/iv_view_picture"
+                android:layout_alignRight="@+id/iv_view_picture"
+                android:layout_alignTop="@+id/iv_view_picture"
+                android:layout_alignBottom="@+id/iv_view_picture"
+                android:indeterminate="true"
+                android:padding="155dp"
+
+                />
+
+
+        </RelativeLayout></ScrollView>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:layout_gravity="bottom|end"
+        >
+
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_view_subscribe"
+
+
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
+
+        app:srcCompat="@drawable/ic_star_black_24dp"
+        app:fabSize="normal"
+        app:backgroundTint="@color/yellow800"
+        android:tint="@android:color/white"
+        android:layout_margin="8dp"
+
+        />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_view_share"
+
+
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
+
+        app:srcCompat="@drawable/ic_share_black_24dp"
+        app:fabSize="normal"
+        app:backgroundTint="@color/purple500"
+        android:tint="@android:color/white"
+        android:layout_margin="8dp"
+
+        />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_view_edit"
+
+            android:layout_width="@dimen/fab_size"
+            android:layout_height="@dimen/fab_size"
+
+            app:srcCompat="@drawable/ic_edit_black_24dp"
+            app:fabSize="normal"
+            app:backgroundTint="@color/colorAccent"
+            android:tint="@android:color/white"
+            android:transitionName="fab"
+            android:layout_margin="8dp"
+
+            />
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

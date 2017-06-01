@@ -9,6 +9,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 
+import halamish.reem.remember.LocalRam;
 import lombok.Getter;
 
 import static halamish.reem.remember.firebase.Helper.toFirebaseBranch;
@@ -50,11 +51,7 @@ public class FirebaseStorageManager {
     }
 
 
-    @Getter private static FirebaseStorageManager manager;
-
-    public static void init(Context context) {
-        manager = new FirebaseStorageManager();
-    }
+    @Getter private static FirebaseStorageManager manager = new FirebaseStorageManager();
 
     private FirebaseStorage storage;
     private FirebaseStorageManager(){
@@ -101,8 +98,20 @@ public class FirebaseStorageManager {
     public static interface OnPictureReadyCallback extends OnStorageError {
         void onPicReady(String eventId, byte[] picture, int height, int width);
     }
+    public static interface OnLowDensPictureReadyCallback extends OnStorageError {
+        void onLowDensPicReady(String eventId, byte[] picture, int height, int width);
+    }
 
-    public void getLowDensPictureUrl(String eventId, OnPictureReadyCallback callback){
+    public void getLowDensPictureByteArray(String eventId, OnLowDensPictureReadyCallback callback){
+        storage
+                .getReference()
+                .child(getPathPictureLowDens(eventId))
+                .getBytes(LOW_DENS_WIDTH * LOW_DENS_HEIGHT)
+                .addOnSuccessListener(bytes -> callback.onLowDensPicReady(eventId, bytes, LOW_DENS_HEIGHT, LOW_DENS_WIDTH))
+                .addOnFailureListener(callback::onError);
+    }
+
+    public void getPictureByteArray(String eventId, OnPictureReadyCallback callback){
         storage
                 .getReference()
                 .child(getPathPictureLowDens(eventId))

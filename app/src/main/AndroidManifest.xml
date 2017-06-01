@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity_main.MainActivity">
+        <activity android:name=".activity.splash.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,9 +19,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity_create_event.CreateEventActivity">
-
-        </activity>
+        <activity android:name=".activity.create_event.CreateEditEventActivity"/>
+        <activity android:name=".activity.view_event.ViewEventActivity"/>
+        <activity android:name=".activity.main.MainActivity"/>
 
         <service
             android:name=".firebase.notification.FirebaseMsgService">

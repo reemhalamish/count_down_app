@@ -66,6 +66,13 @@ dependencies {
 
     provided "org.projectlombok:lombok:1.12.6"
 
+    annotationProcessor "org.androidannotations:androidannotations:4.3.0"
+    compile "org.androidannotations:androidannotations-api:4.3.0"
+    // for "@InstanceState
+
+    compile 'jp.wasabeef:recyclerview-animators:2.2.6'
+    // for recyclerView animations
+
 //    compile "frankiesardo:icepick:3.2.0"
 //    compile "frankiesardo:icepick-processor:3.2.0"
 

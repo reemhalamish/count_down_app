@@ -51,8 +51,8 @@ public class CountDownView extends RelativeLayout {
     }
 
     public void setCountdown(int days, int hours) {
-        if (hours <= 99 && hours > -9) {
-            tvCountdown.setText(String.valueOf(hours));
+        if (hours <= 96 && hours > -96) {
+            tvCountdown.setText(String.valueOf(Math.abs(hours)));
             tvDaysHours.setText(R.string.hours);
 
             if (hours >= 0) {
@@ -64,6 +64,10 @@ public class CountDownView extends RelativeLayout {
                 tvIn.setText(R.string.in);
             } else { // hours are negative
                 tvIn.setText(R.string.before);
+                int color = ContextCompat.getColor(getContext(), R.color.divider);
+                for (TextView view : Arrays.asList(tvIn, tvCountdown, tvDaysHours)) {
+                    view.setTextColor(color);
+                }
             }
         } else { // hours out of range - display days
             tvDaysHours.setText(R.string.days);
@@ -72,6 +76,10 @@ public class CountDownView extends RelativeLayout {
                 tvIn.setText(R.string.in);
             } else { // days are negative
                 tvIn.setText(R.string.before);
+                int color = ContextCompat.getColor(getContext(), R.color.divider);
+                for (TextView view : Arrays.asList(tvIn, tvCountdown, tvDaysHours)) {
+                    view.setTextColor(color);
+                }
             }
 
             if (Math.abs(days) > 99) {

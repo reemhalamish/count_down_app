@@ -5,7 +5,8 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="halamish.reem.remember.activity_main.MainActivity"
+    tools:context=".activity.main.MainActivity"
+    android:background="#f5f5f5"
     >
 
     <ProgressBar
@@ -80,8 +81,8 @@
     </ScrollView>
 
     <android.support.design.widget.FloatingActionButton
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
         android:id="@+id/fab_main"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -90,6 +91,8 @@
         android:tint="#ffffffff"
         app:backgroundTint="@color/accent"
         android:transitionName="fab"
-        app:fabSize="normal" />
+        app:fabSize="normal"
+        android:visibility="gone"
+        />
 
 </android.support.design.widget.CoordinatorLayout>

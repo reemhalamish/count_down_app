@@ -1,4 +1,4 @@
-package halamish.reem.remember.activity_create_event;
+package halamish.reem.remember.activity.create_event;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
 
+import halamish.reem.remember.LocalRam;
 import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.storage.FirebaseStorageManager;
 import lombok.AllArgsConstructor;
@@ -33,7 +34,7 @@ public class WorkWithPicture {
     private static final int ASPECT_Y = 1;
     private static final int ASPECT_X = 1;
     private static final String TAG = WorkWithPicture.class.getSimpleName();
-    private static final int QUALITY_PRCNTG = 90;
+    private static final int QUALITY_PRCNTG = 100;
 
     public interface OnPictureCroppedAndReadyCallback {
         void onPictureReady(Bitmap image);
@@ -139,6 +140,11 @@ public class WorkWithPicture {
         protected Void doInBackground(Void... voids) {
             if (actualPicture == null) return null;
             lowDensityPicture = toLowDensity(actualPicture);
+
+            LocalRam.getManager().addImage(eventId, actualPicture);
+            LocalRam.getManager().addThumbnail(eventId, actualPicture);
+
+
             FirebaseStorageManager
                     .getManager()
                     .uploadPictureToEvent(
