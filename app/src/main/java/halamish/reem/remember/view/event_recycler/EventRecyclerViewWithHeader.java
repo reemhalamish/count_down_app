@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,13 +14,6 @@ import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +21,7 @@ import java.util.Map;
 
 import halamish.reem.remember.R;
 import halamish.reem.remember.RememberApp;
+import halamish.reem.remember.activity.main.MainActivity;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.view.HeaderView;
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
@@ -37,10 +33,10 @@ import jp.wasabeef.recyclerview.animators.FadeInAnimator;
  */
 
 public class EventRecyclerViewWithHeader extends RelativeLayout {
+    private static final int REMOVAL_UPDATE_DELAY_MS = MainActivity.DELAY_UI_CHANGE_EVENTS_MS;
     HeaderView mHeaderView;
     RecyclerView mRecyclerView;
     TextView mTvNothingHere;
-    String mShowWhenNoObjects;
     EventAdapter mAdapter;
     boolean mStarVisible;
     boolean mStarOn;
@@ -120,7 +116,10 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
         mAdapter = new EventAdapter(copy, shouldStarBeOn, shouldStarVisible, callbacks, context, isInEditMode());
         eventIdToBitmap = new HashMap<>();
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        mRecyclerView.setLayoutManager(
+                new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false){
+                    @Override public boolean supportsPredictiveItemAnimations() {return true;}
+                });
         mRecyclerView.setItemAnimator(new FadeInAnimator());
 
         updateVisibility();
@@ -148,12 +147,12 @@ public class EventRecyclerViewWithHeader extends RelativeLayout {
 
     public void removeAt(int indexInHot) {
         mAdapter.removeAt(indexInHot);
-        updateVisibility();
+        new Handler(Looper.myLooper()).postDelayed(this::updateVisibility, REMOVAL_UPDATE_DELAY_MS);
     }
 
     public void remove(Event event) {
         mAdapter.remove(event);
-        updateVisibility();
+        new Handler(Looper.myLooper()).postDelayed(this::updateVisibility, REMOVAL_UPDATE_DELAY_MS);
     }
 
     /**

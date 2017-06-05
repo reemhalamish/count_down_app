@@ -1,5 +1,6 @@
 package halamish.reem.remember.activity.create_event;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -23,6 +24,8 @@ import java.util.Calendar;
 
 import halamish.reem.remember.LocalRam;
 import halamish.reem.remember.R;
+import halamish.reem.remember.firebase.db.FirebaseDbException;
+import halamish.reem.remember.firebase.db.FirebaseDbManager;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 import halamish.reem.remember.view.ViewUtil;
@@ -73,8 +76,12 @@ public class CreateEditEventActivity extends AppCompatActivity {
             event = (Event) savedInstanceState.get(BUNDLE_EVENT_STARTING_TO_WORK);
             isNewEvent = savedInstanceState.getBoolean(BUNDLE_EVENT_IS_NEW);
         } else {
-            event = (Event) getIntent().getSerializableExtra(INPUT_EVENT);
             isNewEvent = getIntent().getBooleanExtra(BUNDLE_EVENT_IS_NEW, false);
+            if (isNewEvent) {
+                event = (Event) getIntent().getSerializableExtra(INPUT_EVENT);
+            } else {
+                event = Event.createNewHalfFilled();
+            }
         }
         setContentView(R.layout.activity_create_event);
 
@@ -195,6 +202,15 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
 
 
+            try {
+                if (isNewEvent)
+                    FirebaseDbManager.getManager().uploadNewEvent(event, event.creatorPolicy(), null);
+                else
+                    FirebaseDbManager.getManager().updateExistingEvent(event, null);
+            }
+            catch (FirebaseDbException.NotEventCreator ignored) {}
+
+
             pictureWorker.uploadPicturesQuietlyInBg(event.getUniqueId());
 
             Intent backIntent = new Intent();
@@ -272,6 +288,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         tvNtfc.setOnClickListener(ntfcPolicyListener);
     }
 
+    @SuppressLint("WrongConstant")
     private void setListenerDate() {
         View.OnClickListener dateListener = view -> {
             Calendar calendar = event.asCalendar();
@@ -309,8 +326,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     tvTime.setTextColor(textSecondaryColor);
                     ivTime.setColorFilter(textSecondaryColor);
                 },
-                event.get_local_Hours(),
-                event.get_local_Minutes(),
+                event.localGetHours(),
+                event.localGetMinutes(),
                 false)
                 .show();
 
@@ -335,11 +352,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     /**
-     * Dispatch incoming result to the correct fragment.
+     * Dispatch incoming result to the pictureWorker.
      *
-     * @param requestCode
-     * @param resultCode
-     * @param data
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

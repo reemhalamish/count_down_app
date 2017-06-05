@@ -28,6 +28,7 @@ public class MaterialCircleImageView extends CircleImageView {
 
     private void init() {
         setBackgroundResource(R.drawable.circle_color_light);
-
+        if (isInEditMode())
+            setImageResource(R.color.purple500);
     }
 }

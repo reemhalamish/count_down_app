@@ -96,7 +96,7 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
 
     Intent mDataBack;
 
-    int colorRed, colorGold;
+    int colorRed, colorGold, colorGray300;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -170,25 +170,26 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
             fabSubscribe.setOnClickListener(view -> {
                 final boolean userIsNowSubscribed = !userWasSubscribed;
 
-                fabSubscribe.startAnimation(switchFab);
+//                fabSubscribe.startAnimation(switchFab);
 
-                new Handler().postDelayed(() -> {
+//                new Handler().postDelayed(() -> {
                     int inSnackbar;
-                    int fabBgTintColor;
+                    int fabFgTintColor;
                     int fabIconId;
                     if (userIsNowSubscribed) {
-                        fabBgTintColor = colorRed;
-                        fabIconId = R.drawable.ic_star_border_black_24dp;
+                        fabFgTintColor = colorGold;
+                        fabIconId = R.drawable.ic_star_black_24dp;
                         inSnackbar = R.string.subscribed_success;
                     } else {
-                        fabBgTintColor = colorGold;
-                        fabIconId = R.drawable.ic_star_black_24dp;
+                        fabFgTintColor = colorGray300;
+                        fabIconId = R.drawable.ic_star_border_black_24dp;
                         inSnackbar = R.string.unsubscribed_success;
                     }
-                    fabSubscribe.setBackgroundTintList(ColorStateList.valueOf(fabBgTintColor));
+//                    fabSubscribe.setBackgroundTintList(ColorStateList.valueOf(fabFgTintColor));
+                    fabSubscribe.setColorFilter(fabFgTintColor);
                     fabSubscribe.setImageResource(fabIconId);
                     Snackbar.make(clMain, inSnackbar, BaseTransientBottomBar.LENGTH_SHORT).show();
-                }, DELAY_SUBSCRIBE_FAB_ANIM_MS);
+//                }, DELAY_SUBSCRIBE_FAB_ANIM_MS);
 
 
 
@@ -280,7 +281,7 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
     private void setInitValues() {
         colorGold = ContextCompat.getColor(this, R.color.yellow800);
         colorRed = ContextCompat.getColor(this, R.color.red500);
-
+        colorGray300 = ContextCompat.getColor(this, R.color.gray300);
 
         setTitle(mEvent.getTitle());
 
@@ -307,11 +308,12 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
 
         // fab subscribe
         if (userWasSubscribed) {
-            fabSubscribe.setBackgroundTintList(ColorStateList.valueOf(colorRed));
-            fabSubscribe.setImageResource(R.drawable.ic_star_border_black_24dp);
-        } else {
-            fabSubscribe.setBackgroundTintList(ColorStateList.valueOf(colorGold));
+//            fabSubscribe.setBackgroundTintList(ColorStateList.valueOf(colorRed));
+            fabSubscribe.setColorFilter(colorGold);
             fabSubscribe.setImageResource(R.drawable.ic_star_black_24dp);
+        } else {
+            fabSubscribe.setColorFilter(colorGray300);
+            fabSubscribe.setImageResource(R.drawable.ic_star_border_black_24dp);
         }
 
 

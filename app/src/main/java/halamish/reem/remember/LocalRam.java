@@ -35,12 +35,8 @@ public class LocalRam implements FirebaseStorageManager.OnPictureReadyCallback, 
 
 
 
-    static interface OneTimeOnly {
-        @SuppressLint("NewApi")
-        default boolean oneTimeOnly() {return true;}
-    }
 
-    public interface OnNewThumbnailInserted extends OneTimeOnly {
+    public interface OnNewThumbnailInserted {
         /**
          *
          * @param eventId
@@ -49,7 +45,7 @@ public class LocalRam implements FirebaseStorageManager.OnPictureReadyCallback, 
          */
         boolean thumbnailReady(String eventId, Bitmap thumbnail);
     }
-    public interface OnNewImageInserted extends OneTimeOnly {
+    public interface OnNewImageInserted {
 
         /**
          *

@@ -84,14 +84,14 @@ public class Event implements Serializable {
         return String.valueOf(weeklyAlertDay);
     }
 
-    public long get_local_CountDownDays() {
+    public long localGetCountDownDays() {
         Date date = new Date();
         Date theEventDate = asDate();
         long diff = theEventDate.getTime() - date.getTime();
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
     }
 
-    public long get_local_CountDownHours() {
+    public long localGetCountDownHours() {
         Date date = new Date();
         Date theEventDate = asDate();
         long diff = theEventDate.getTime() - date.getTime();
@@ -126,7 +126,7 @@ public class Event implements Serializable {
         return toCalendar(date);
     }
 
-    public int get_local_Hours() {
+    public int localGetHours() {
         try {
             return Integer.parseInt(time.substring(0, 2));
         } catch (Exception exception) {
@@ -135,7 +135,7 @@ public class Event implements Serializable {
         }
     }
 
-    public int get_local_Minutes() {
+    public int localGetMinutes() {
         try {
             return Integer.parseInt(time.substring(3));
         } catch (Exception exception) {
@@ -180,5 +180,20 @@ public class Event implements Serializable {
     @Override
     public int hashCode() {
         return uniqueId.hashCode();
+    }
+
+    public EventNotificationPolicy creatorPolicy() {
+        return EventNotificationPolicy.fromString(creatorNtfcPolicy);
+    }
+
+    public EventType localGetType() {
+        String username = LocalRam.getManager().getUsername();
+        if (creator.equals(username)) return EventType.CREATOR;
+
+        User curUser = LocalRam.getManager().getUser();
+        if (curUser.isSubscribed(uniqueId)) return EventType.SUBSCRIBER;
+
+        return EventType.HOT_EVENT;
+
     }
 }

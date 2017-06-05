@@ -13,6 +13,13 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         vectorDrawables.generatedDensities = []
+//        multiDexEnabled true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath = true
+            }
+        }
     }
 //    aaptOptions {
 //        additionalParameters " - no-version-vectors"
@@ -56,15 +63,19 @@ dependencies {
     compile 'com.google.firebase:firebase-database:10.2.6'
     compile 'com.google.firebase:firebase-messaging:10.2.6'
     compile 'com.google.firebase:firebase-storage:10.2.6'
-    compile 'com.firebaseui:firebase-ui-storage:1.2.0'
+//    compile 'com.firebaseui:firebase-ui-storage:1.2.0'
 
-    compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
+//    compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
+//    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
 
 
     compile 'de.hdodenhof:circleimageview:2.1.0'
 
-    provided "org.projectlombok:lombok:1.12.6"
+//    annotationProcessor "org.projectlombok:lombok:1.12.6"
+//    provided "org.projectlombok:lombok:1.12.6"
+    provided "org.projectlombok:lombok:1.16.16"
+    annotationProcessor "org.projectlombok:lombok:1.16.16"
+
 
     annotationProcessor "org.androidannotations:androidannotations:4.3.0"
     compile "org.androidannotations:androidannotations-api:4.3.0"

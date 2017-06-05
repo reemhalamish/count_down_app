@@ -52,8 +52,12 @@ public class SplashActivity extends AppCompatActivity {
     private List<ImageView> circles;
     private long startTime;
     private boolean isFinishedLoading = false;
+    private boolean firstIndexAlreadyMoving = false;
+    private boolean isDestroyed = false;
+
     private View tvTitle;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,8 +99,6 @@ public class SplashActivity extends AppCompatActivity {
                     ImageView circle = new ImageView(context);
                     circle.setImageResource(R.drawable.circle_half_dp);
                     circle.setColorFilter(CIRCLE_COLORS[i % CIRCLE_COLORS.length]);
-                    float yPos = topP + i * heightP / viewsNumber;
-                    float xPos = leftP;
                     RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int) circleSizePxl, (int) circleSizePxl);
                     params.topMargin = 0;
                     params.leftMargin = 0;
@@ -105,6 +107,11 @@ public class SplashActivity extends AppCompatActivity {
                     circles.add(circle);
                 }
 
+                FirebaseInitiationController.getManager().whenReady(() -> {
+                    long timePassed = System.currentTimeMillis() - startTime;
+                    long timeStillNeeded = Math.max(0, ANIM_MIN_DUR_TOTAL_MS - timePassed);
+                    new Handler(Looper.myLooper()).postDelayed(() -> isFinishedLoading = true, timeStillNeeded);
+                });
 
                 Handler handler = new Handler(Looper.getMainLooper());
                 for (int i = 0; i < viewsNumber; i++) {
@@ -114,21 +121,19 @@ public class SplashActivity extends AppCompatActivity {
                         startMovingCircle(finalI, leftP, rightP, topP + finalI * heightP / viewsNumber);
                     }, DUR_BEFORE_START_MS + i * ANIM_STEP_BETWEEN_CIRCLES_DUR_MS);
                 }
-
             }
         });
     }
 
     private void startMovingCircle(int index, float left, float right, float height) {
         Log.d(TAG, "starting circle " + index);
-        long timeDelta = System.currentTimeMillis() - startTime;
-        if (index == 0 && FirebaseInitiationController.isReady() && timeDelta > ANIM_MIN_DUR_TOTAL_MS) {
-            isFinishedLoading = true;
-        }
+        if (isDestroyed) return;
+        if (isFinishedLoading && index == 0) firstIndexAlreadyMoving = true;
 
-        if (isFinishedLoading) {
-            float xPosTv = tvTitle.getLeft() + (tvTitle.getRight() - tvTitle.getLeft())/2;
+        if (firstIndexAlreadyMoving) {
+            float xPosTv = (tvTitle.getRight() + tvTitle.getLeft())/2;
             float yPosTv = tvTitle.getBottom();
+
 
             Animation animation = new TranslateAnimation(left, xPosTv, height, yPosTv);
             animation.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -141,7 +146,6 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
         else {
-//            Animation animation = new TranslateAnimation((int) left,Animation.RELATIVE_TO_PARENT, (int) (right), Animation.RELATIVE_TO_PARENT, 0, Animation.RELATIVE_TO_PARENT, 0, Animation.RELATIVE_TO_PARENT);
             Animation animation = new TranslateAnimation(left, right, height, height);
             animation.setInterpolator(new AccelerateDecelerateInterpolator());
             animation.setDuration(ANIM_ONE_ROUND_DUR_MS);
@@ -149,7 +153,14 @@ public class SplashActivity extends AppCompatActivity {
             new Handler(Looper.getMainLooper()).postDelayed(() -> moveCircleBack(index, left, right, height), ANIM_ONE_ROUND_DUR_MS);
         }
     }
-
+    private void moveCircleBack(int index, float left, float right, float height) {
+        if (isDestroyed) return;
+        Animation animation = new TranslateAnimation(right, left, height, height);
+        animation.setInterpolator(new AccelerateDecelerateInterpolator());
+        animation.setDuration(ANIM_ONE_ROUND_DUR_MS);
+        circles.get(index).startAnimation(animation);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> startMovingCircle(index, left, right, height), ANIM_ONE_ROUND_DUR_MS);
+    }
     private void goToNextActivity() {
         // todo one day need to put here some info about the link to be opened in the next activity if someone used the "share" button
         Intent gotoNext = new Intent(this, MainActivity.class);
@@ -157,12 +168,5 @@ public class SplashActivity extends AppCompatActivity {
         finish();
     }
 
-    private void moveCircleBack(int index, float left, float right, float height) {
-//        Animation animation = new TranslateAnimation((int) (right),Animation.ABSOLUTE, (int) left, Animation.ABSOLUTE, 0, Animation.RELATIVE_TO_PARENT, 0, Animation.RELATIVE_TO_PARENT);
-        Animation animation = new TranslateAnimation(right, left, height, height);
-        animation.setInterpolator(new AccelerateDecelerateInterpolator());
-        animation.setDuration(ANIM_ONE_ROUND_DUR_MS);
-        circles.get(index).startAnimation(animation);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> startMovingCircle(index, left, right, height), ANIM_ONE_ROUND_DUR_MS);
-    }
+
 }

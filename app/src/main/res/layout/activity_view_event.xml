@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:id="@+id/cl_view_main"
+    android:background="@color/gray100"
     >
 
     <ScrollView
@@ -220,12 +221,15 @@ android:textColor="@color/divider"
         android:layout_height="@dimen/fab_size"
 
         app:srcCompat="@drawable/ic_star_black_24dp"
-        app:fabSize="normal"
-        app:backgroundTint="@color/yellow800"
-        android:tint="@android:color/white"
+        app:fabSize="mini"
+        app:backgroundTint="@android:color/white"
+        android:tint="@color/yellow800"
         android:layout_margin="8dp"
 
         />
+
+        <!--app:backgroundTint="@color/yellow800"-->
+        <!--android:tint="@android:color/white"-->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_view_share"

@@ -24,4 +24,8 @@ public class User {
         phones = new HashMap<>();
         eventSubscribed = new HashMap<>();
     }
+
+    public boolean isSubscribed(String eventUniqueId) {
+        return eventSubscribed.containsKey(eventUniqueId);
+    }
 }

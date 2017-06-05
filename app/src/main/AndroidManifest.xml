@@ -21,7 +21,8 @@
 
         <activity android:name=".activity.create_event.CreateEditEventActivity"/>
         <activity android:name=".activity.view_event.ViewEventActivity"/>
-        <activity android:name=".activity.main.MainActivity"/>
+        <activity android:name=".activity.main.MainActivity" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".activity.main_old.main.MainActivity"/>
 
         <service
             android:name=".firebase.notification.FirebaseMsgService">

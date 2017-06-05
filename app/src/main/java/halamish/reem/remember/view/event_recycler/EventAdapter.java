@@ -64,7 +64,7 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> implements Lo
     public void onBindViewHolder(ViewHolder holder, int position) {
         Event event = events.get(position);
         holder.tvTitle.setText(event.getTitle());
-        holder.cdvDays.setCountdown((int) event.get_local_CountDownDays(), (int) event.get_local_CountDownHours());
+        holder.cdvDays.setCountdown((int) event.localGetCountDownDays(), (int) event.localGetCountDownHours());
 
 
         if (isStarVisibleAllEvents) {
@@ -84,7 +84,8 @@ public class EventAdapter extends RecyclerView.Adapter<ViewHolder> implements Lo
             });
 
         } else { // isStarVisibleAllEvents is false
-            holder.ivStar.setVisibility(View.GONE);
+            holder.ivStar.setVisibility(View.INVISIBLE);
+            holder.ivStar.setOnClickListener(null);
         }
 
         if (isInEditMode) return;

@@ -7,7 +7,8 @@ buildscript {
         maven {url "https://clojars.org/repo/"}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+//        classpath 'com.android.tools.build:gradle:2.3.2'
+        classpath 'com.android.tools.build:gradle:2.4.0-alpha7'
         classpath 'com.google.gms:google-services:3.0.0' // for firebase
         classpath 'me.tatarka:gradle-retrolambda:3.6.1' // retrolambda. it helps lombok as well
 

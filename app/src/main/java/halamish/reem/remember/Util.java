@@ -12,4 +12,13 @@ public class Util {
 
     public static AtomicInteger uniqueIntNumber = new AtomicInteger(1024);
 
+    public static boolean allTrue(boolean[] array) {
+        for (Boolean bool : array)
+            if (!bool)
+                return false;
+
+        return true;
+    }
+
+
 }
