@@ -1,4 +1,4 @@
-package halamish.reem.remember.activity.main_old.main;
+package halamish.reem.remember.dialog;
 
 import android.app.Dialog;
 import android.content.Context;

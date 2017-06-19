@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import halamish.reem.remember.LocalRam;
 import halamish.reem.remember.firebase.db.FirebaseDbManager;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @IgnoreExtraProperties
 public class Event implements Serializable {
-    static final DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US);
+    private static final DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US);
     private static final DateFormat formatterOnlyCalendar = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
     private static final DateFormat formatterOnlyTime = new SimpleDateFormat("HH:mm", Locale.US);
     public static final String QUERY_PUBLIC_SUBSCRIBERS_IS_PRIVATE = null;
@@ -57,11 +56,6 @@ public class Event implements Serializable {
             e.printStackTrace();
             return new Date(0);
         }
-    }
-    public void fromDate(Date dateIn) {
-        String dateAndTime = Event.formatter.format(dateIn);
-        date = dateAndTime.substring(0, 10);
-        time = dateAndTime.substring(11);
     }
 
     /**
@@ -191,9 +185,16 @@ public class Event implements Serializable {
         if (creator.equals(username)) return EventType.CREATOR;
 
         User curUser = LocalRam.getManager().getUser();
-        if (curUser.isSubscribed(uniqueId)) return EventType.SUBSCRIBER;
+        if (curUser.isSubscribed(uniqueId) && !isPublic) return EventType.PRIVATE_SUBSCRIBER;
 
         return EventType.HOT_EVENT;
+    }
 
+    public static String format(Date date) {
+        return formatter.format(date);
+    }
+
+    public String dateTimeFormattedTogether() {
+        return date + " " + time;
     }
 }

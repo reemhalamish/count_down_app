@@ -33,37 +33,28 @@ import halamish.reem.remember.firebase.db.FirebaseDbManager;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 
+import static halamish.reem.remember.activity.intent.IntentConsts.IO_EVENT;
+
 /**
  * Created by Re'em on 5/25/2017.
  *
  * when being called from the main activity, a couple of options can happen:
  *
  *      @ the user presses the "subscribe!" button  ---> call main activity with
- *          OUTPUT_EVENT = event
- *          OUTPUT_IS_EVENT_SUBSCRIBED = true
- *          OUTPUT_ACTION = OUTPUT_IS_EVENT_SUBSCRIBED
+ *          IO_EVENT = event
  *
  *      @ the user presses the "unsubscribe :(" button  ---> call main activity with
- *          OUTPUT_EVENT = event
- *          OUTPUT_ACTION_SUBSCRIBED = false
- *          OUTPUT_ACTION = OUTPUT_IS_EVENT_SUBSCRIBED
+ *          IO_EVENT = event
  *
  *
  *      @ the user presses the "edit" button  ---> call for result CreateEditEventActivity
  *                                                  and when it returns call main activity with
- *          OUTPUT_EVENT = the new updated event
- *          OUTPUT_ACTION = OUTPUT_ACTION_EDITED
+ *          IO_EVENT = event
  *
  *
  */
 
 public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnNewImageInserted {
-    public static final String INPUT_EVENT = "input_event@ViewEventActivity";
-    public static final String OUTPUT_EVENT = "output_event@ViewEventActivity";
-    public static final String OUTPUT_ACTION = "OUTPUT_ACTION@ViewEventActivity";
-    public static final String OUTPUT_ACTION_EDITED = "OUTPUT_ACTION_EDITED@ViewEventActivity";
-    public static final String OUTPUT_ACTION_SUBSCRIBED = "OUTPUT_ACTION_SUBSCRIBED@ViewEventActivity";
-    public static final String OUTPUT_IS_EVENT_SUBSCRIBED = "OUTPUT_IS_EVENT_SUBSCRIBED@ViewEventActivity";
 
 
 
@@ -102,12 +93,12 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
-            mEvent = (Event) getIntent().getSerializableExtra(INPUT_EVENT);
+            mEvent = (Event) getIntent().getSerializableExtra(IO_EVENT);
             if (mEvent == null) {finish(); return; }
         } else {
             mEvent = (Event) savedInstanceState.getSerializable(BUNDLE_EVENT);
         }
-        userWasSubscribed = LocalRam.getManager().getUser().eventSubscribed.containsKey(mEvent.getUniqueId());
+        userWasSubscribed = LocalRam.getManager().getUser().isSubscribed(mEvent.getUniqueId());
 
         setContentView(R.layout.activity_view_event);
         //noinspection ConstantConditions
@@ -131,7 +122,7 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
             CharSequence[] arrayString = {getString(R.string.notify_daily), getString(R.string.notify_weekly), getString(R.string.dont_notify)};
             EventNotificationPolicy[] arrayNotification = {EventNotificationPolicy.NOTIFY_DAILY, EventNotificationPolicy.NOTIFY_WEEKLY, EventNotificationPolicy.DONT_NOTIFY};
             int curChoiceIndex = -1;
-            EventNotificationPolicy policy1 = EventNotificationPolicy.fromString(LocalRam.getManager().getUser().eventSubscribed.get(mEvent.getUniqueId()));
+            EventNotificationPolicy policy1 = EventNotificationPolicy.fromString(LocalRam.getManager().getUser().getSubscriptionPolicy(mEvent.getUniqueId()));
             if (policy1.equals(EventNotificationPolicy.NOTIFY_DAILY)) curChoiceIndex = 0;
             if (policy1.equals(EventNotificationPolicy.NOTIFY_WEEKLY)) curChoiceIndex = 1;
             if (policy1.equals(EventNotificationPolicy.DONT_NOTIFY)) curChoiceIndex = 2;
@@ -141,7 +132,7 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
                     .setSingleChoiceItems(arrayString, curChoiceIndex, (dialog, which) -> {
                         EventNotificationPolicy policyChosen = arrayNotification[which];
                         mEvent.set_local_subscriberNtfcPolicy(policyChosen.toString());
-                        LocalRam.getManager().getUser().eventSubscribed.put(mEvent.getUniqueId(), policyChosen.toString());
+                        LocalRam.getManager().getUser().addSubscription(mEvent.getUniqueId(), policyChosen.toString());
                         FirebaseDbManager.getManager().reqUpdateNotificationPolicy(
                                 mEvent.getUniqueId(),
                                 mEvent.weeklyAlertDay(),
@@ -194,9 +185,7 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
 
 
                 mDataBack = new Intent();
-                mDataBack.putExtra(OUTPUT_EVENT, mEvent);
-                mDataBack.putExtra(OUTPUT_ACTION, OUTPUT_ACTION_SUBSCRIBED);
-                mDataBack.putExtra(OUTPUT_IS_EVENT_SUBSCRIBED, userIsNowSubscribed);
+                mDataBack.putExtra(IO_EVENT, mEvent);
                 setResult(RESULT_OK, mDataBack);
 
                 if (userIsNowSubscribed) {
@@ -258,9 +247,7 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
         if (LocalRam.getManager().getUsername().equals(mEvent.getCreator())) {
             fabEdit.setOnClickListener(view -> {
                 Intent goToEdit = new Intent(ViewEventActivity.this, CreateEditEventActivity.class);
-                goToEdit.putExtra(CreateEditEventActivity.INPUT_EVENT, mEvent);
-                goToEdit.putExtra(CreateEditEventActivity.INPUT_IS_NEW, false);
-                // todo this boolean is not used anywhere, as we call it from different places. so we can figure out if event was to be added or modified. should I delete this?
+                goToEdit.putExtra(IO_EVENT, mEvent);
 
                 ActivityOptionsCompat options =
                         ActivityOptionsCompat.
@@ -319,7 +306,7 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
 
         // notification area
         if (userWasSubscribed) {
-            EventNotificationPolicy policy = EventNotificationPolicy.fromString(LocalRam.getManager().getUser().eventSubscribed.get(mEvent.getUniqueId()));
+            EventNotificationPolicy policy = EventNotificationPolicy.fromString(LocalRam.getManager().getUser().getSubscriptionPolicy(mEvent.getUniqueId()));
             tvNtfc.setText(policy.asStringResource());
         }
     }
@@ -353,21 +340,12 @@ public class ViewEventActivity extends AppCompatActivity implements LocalRam.OnN
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
         if (requestCode == REQ_EDIT_EVENT) {
-            Event updatedEvent = (Event) data.getSerializableExtra(CreateEditEventActivity.OUTPUT_EVENT);
+            Event updatedEvent = (Event) data.getSerializableExtra(IO_EVENT);
             Intent backIntent = new Intent();
-            backIntent.putExtra(OUTPUT_ACTION, OUTPUT_ACTION_EDITED);
-            backIntent.putExtra(OUTPUT_EVENT, updatedEvent);
+            backIntent.putExtra(IO_EVENT, updatedEvent);
             setResult(RESULT_OK, backIntent);
 //            supportFinishAfterTransition();
 
-            // update in firebase
-            try {
-                FirebaseDbManager.getManager().updateExistingEvent(updatedEvent, null);
-                mEvent = updatedEvent;
-                setInitValues();
-            } catch (FirebaseDbException.NotEventCreator notEventCreator) {
-                notEventCreator.printStackTrace();
-            }
         }
     }
 

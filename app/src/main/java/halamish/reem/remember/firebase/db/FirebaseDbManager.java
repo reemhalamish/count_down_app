@@ -25,6 +25,7 @@ import halamish.reem.remember.firebase.db.entity.User;
 import lombok.Getter;
 
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestDeleteEventUpload;
+import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestHideEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestNewEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUpdateEventUpload;
 import static halamish.reem.remember.firebase.db.UpdatesGenerator.requestUpdatePolicyUpload;
@@ -51,7 +52,8 @@ public class FirebaseDbManager {
 
     static final String BRANCH_USERS = "user";
     static final String BRANCH_USERS_UNMAE_PHONES = "phones";
-    static final String BRANCH_USERS_UNMAE_EVENTS = "eventSubscribed";
+    static final String BRANCH_USERS_UNMAE_SUBSCRIBED = "eventSubscribed";
+    static final String BRANCH_USERS_UNMAE_HIDDEN = "eventHidden";
     static final String BRANCH_EVENTS = "event";
     static final String BRANCH_ALERTS = "alert";
     static final String BRANCH_ALERTS_DAILY = "daily";
@@ -137,6 +139,9 @@ public class FirebaseDbManager {
     }
 
 
+    public void uploadNewEvent(Event event, EventNotificationPolicy eventNotificationPolicy) throws FirebaseDbException.NotEventCreator {
+        uploadNewEvent(event, eventNotificationPolicy, new DoNothingOnDbReady<>());
+    }
 
 
     /**
@@ -148,11 +153,8 @@ public class FirebaseDbManager {
      */
     public void uploadNewEvent(final Event eventToUpload,
                                EventNotificationPolicy policy,
-                               final OnDbReadyCallback<Event> callbackArg)
+                               final OnDbReadyCallback<Event> callback)
             throws FirebaseDbException.NotEventCreator {
-
-        final OnDbReadyCallback<Event> callback;
-        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
 
         handleNoInternet();
         if (eventToUpload == null) return;
@@ -177,13 +179,15 @@ public class FirebaseDbManager {
 
     }
 
-    public void updateExistingEvent(final Event toUpdload, final OnDbReadyCallback<Event> callbackArg)
+
+    public void updateExistingEvent(Event event) throws FirebaseDbException.NotEventCreator {
+        updateExistingEvent(event, new DoNothingOnDbReady<>());
+    }
+
+
+    public void updateExistingEvent(final Event toUpdload, final OnDbReadyCallback<Event> callback)
             throws FirebaseDbException.NotEventCreator
     {
-        final OnDbReadyCallback<Event> callback;
-        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
-
-
         if (toUpdload == null) return;
 
         if (toUpdload.isPublic()) toUpdload._query_publicSubscribers = String.valueOf(toUpdload.subscribersAmount);
@@ -225,10 +229,11 @@ public class FirebaseDbManager {
         });
     }
 
-    public void reqDeleteEvent(String eventId, OnDbReadyCallback<Void> callbackArg) throws FirebaseDbException.NotEventCreator {
-        final OnDbReadyCallback<Void> callback;
-        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
+    public void reqDeleteEvent(String eventId) throws FirebaseDbException.NotEventCreator {
+        reqDeleteEvent(eventId,  new DoNothingOnDbReady<>());
+    }
 
+    public void reqDeleteEvent(String eventId, final OnDbReadyCallback<Void> callback) throws FirebaseDbException.NotEventCreator {
 
         handleNoInternet();
         if (eventId == null) return;
@@ -246,6 +251,21 @@ public class FirebaseDbManager {
 
     /**
      * subscribes the user to a new event, and updates their notification policy -
+     *  wrapper for reqSubscribe with a callback
+     *
+     * @param eventId
+     * @param username
+     * @param policy
+     * @param callback
+     */
+    public void reqSubscribe(String eventId,
+                             String weeklyAlertDay,
+                             String username,
+                             EventNotificationPolicy policy)
+    {reqSubscribe(eventId, weeklyAlertDay, username, policy, new DoNothingOnDbReady<>());}
+
+    /**
+     * subscribes the user to a new event, and updates their notification policy -
      *
      * first, in a transaction, updates the event's subscribersAmount amount and puts the user as a subscriber
      *
@@ -260,10 +280,7 @@ public class FirebaseDbManager {
                              String weeklyAlertDay,
                              String username,
                              EventNotificationPolicy policy,
-                             final OnDbReadyCallback<Void> callbackArg) {
-        final OnDbReadyCallback<Void> callback;
-        if (callbackArg == null) {callback = new DoNothingOnDbReady<>();} else { callback = callbackArg; }
-
+                             final OnDbReadyCallback<Void> callback) {
 
         handleNoInternet();
         if (eventId == null || weeklyAlertDay == null || username == null || policy == null) return;
@@ -300,13 +317,14 @@ public class FirebaseDbManager {
                 }
             }
         });
-
-
-
     }
 
     public String getNewEventId() {
         return  db.child(BRANCH_EVENTS).push().getKey();
+    }
+
+    public void reqUnsubscribe(String username, String eventId) {
+        reqUnsubscribe(username, eventId, new DoNothingOnDbReady<>());
     }
 
     public void reqUnsubscribe(String username, String eventId, OnDbReadyCallback<Event> callbackArg) {
@@ -355,6 +373,15 @@ public class FirebaseDbManager {
         });
     }
 
+    public void reqHideHotEventFromUesr(String username, String eventId) {
+        reqHideHotEventFromUesr(username, eventId, new DoNothingOnDbReady<>());
+    }
+
+
+    public void reqHideHotEventFromUesr(String username, String eventId, OnDbReadyCallback<Void> callback) {
+        Map<String, Object> updates = requestHideEventUpload(username, eventId);
+        uploadToDb(db, updates, () -> {callback.onDatabaseFinishedWorking(null);});
+    }
     /**
      * the user still wants to subscribe, but they want different notification policy.
      *
@@ -435,14 +462,15 @@ public class FirebaseDbManager {
     public void requestDownloadHotEvents(OnDbReadyCallback<List<Event>> callback) {
         handleNoInternet();
 
-        // todo only public events!
+        User user = LocalRam.getManager().getUser();
+
         db.child(BRANCH_EVENTS).orderByChild("_query_publicSubscribers").startAt(Event.QUERY_PUBLIC_SUBSCRIBERS_IS_PUBLIC_NO_SUBSCRIBERS).limitToFirst(MAX_HOT_EVENTS_SHOW).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Event> retVal = new ArrayList<Event>();
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Event event = child.getValue(Event.class);
-                    if (event != null) retVal.add(event);
+                    if (event != null) if (!user.isHidden(event.uniqueId)) retVal.add(event);
                     else Log.e(TAG, "got null event on requestDownloadHotEvents() with event id: " + child.getKey());
                 }
                 callback.onDatabaseFinishedWorking(retVal);
@@ -465,19 +493,16 @@ public class FirebaseDbManager {
             return;
         }
 
-        if (user.eventSubscribed == null || user.eventSubscribed.size() == 0) {
+        if (!user.hasSubscribedEvents()) {
             // user has no subscribed events.
             callback.onDatabaseFinishedWorking(new ArrayList<>());
             return;
         }
 
-
-        Map<String, String> allEvents = user.eventSubscribed;
-
         Set<String> eventsNoLongerExist = new HashSet<>();
         List<Event> retVal = new ArrayList<>();
 
-        for (Map.Entry<String, String> eventIdToSubscriberPolicy: allEvents.entrySet()) {
+        for (Map.Entry<String, String> eventIdToSubscriberPolicy: user.subscriptionsAsEntrySet()) {
             String eventId = eventIdToSubscriberPolicy.getKey();
             String ntfcPolicy = eventIdToSubscriberPolicy.getValue();
 
@@ -493,8 +518,8 @@ public class FirebaseDbManager {
                         retVal.add(fromFirebase);
                     }
 
-                    // if this was the last event toretrieve, continue!
-                    if (retVal.size() + eventsNoLongerExist.size() == allEvents.size()) {
+                    // if this was the last event to retrieve, continue!
+                    if (retVal.size() + eventsNoLongerExist.size() == user.countSubscribedEvents()) {
                         if (eventsNoLongerExist.size() > 0) {
                             reqUserUnfollowDeletedEvents(eventsNoLongerExist, username);
                         }

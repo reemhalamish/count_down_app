@@ -1,27 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="yellow800">#f9a825</color>
+    <color name="greenAccent100">#ccff90</color>
+    <color name="red500">#f44336</color>
+    <color name="gray100">#f5f5f5</color>
+    <color name="gray300">#e0e0e0</color>
+    <color name="purple500">#9c27b0</color>
+
+
+
+    <color name="red200">#ef9a9a</color>
+    <color name="purple200">#ce93d8</color>
+    <color name="cyan200">#80deea</color>
+    <color name="blueGray200">#b0bec5</color>
+
+
+
+
+
+
+
     <color name="primary">#607D8B</color>
     <color name="primary_dark">#455A64</color>
+    <color name="primary_half_light">#90a4ae</color>
     <color name="primary_light">#CFD8DC</color>
     <!--<color name="accent">#f9a825</color>-->
+    <!--<color name="accent">#00b0ff</color>-->
     <color name="accent">#00BCD4</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
 
+
     <color name="colorPrimary">@color/primary</color>
     <color name="colorPrimaryDark">@color/primary_dark</color>
     <color name="colorAccent">@color/accent</color>
 
-    <color name="yellow800">#f9a825</color>
-    <color name="red500">#f44336</color>
-    <color name="gray100">#f5f5f5</color>
-    <color name="gray300">#e0e0e0</color>
+    <color name="main_activity_divider">#388e3c</color>
 
 
 
-    <color name="purple500">#9c27b0</color>
     <color name="indigo500">#3F51B5</color>
     <color name="colorPrimaryBackup">#3F51B5</color>
     <color name="colorPrimaryDarkBackup">#303F9F</color>

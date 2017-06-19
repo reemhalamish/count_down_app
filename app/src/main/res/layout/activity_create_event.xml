@@ -37,6 +37,16 @@
                 <!--android:layout_below="@+id/edt_create_title"/>-->
 
 
+            <ImageView
+                android:id="@+id/iv_create_icon_picture"
+
+                style="@style/activityCreate_ImageView"
+                android:layout_below="@+id/edt_create_title"
+                app:srcCompat="@drawable/ic_image_black_24dp"
+                android:layout_margin="16dp"
+
+                />
+
 
             <ImageView
                 android:id="@+id/iv_create_add_picture"
@@ -48,10 +58,11 @@
                 android:layout_alignParentEnd="true"
                 android:scaleType="fitCenter"
                 android:elevation="5dp"
-                android:layout_below="@+id/edt_create_title"
-                android:layout_marginStart="16dp"
                 android:layout_marginEnd="32dp"
                 android:padding="20dp"
+                android:layout_below="@+id/edt_create_title"
+                android:layout_toEndOf="@+id/iv_create_icon_picture"
+
                 />
 
             <halamish.reem.remember.view.MaterialCircleImageView
@@ -79,7 +90,7 @@
                 android:layout_below="@+id/iv_create_add_picture"
                 android:id="@+id/iv_create_icon_body"
 
-                style="@style/activityView_ImageView"
+                style="@style/activityCreate_ImageView"
 
                 app:srcCompat="@drawable/ic_comment_black_24dp"
                 android:layout_margin="16dp"

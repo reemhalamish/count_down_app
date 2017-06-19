@@ -30,22 +30,24 @@ import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 import halamish.reem.remember.view.ViewUtil;
 
+import static halamish.reem.remember.activity.intent.IntentConsts.IO_EVENT;
+
 /**
  * Created by Re'em on 5/20/2017.
  *
- * activity to update (create new \ edit) an event
+ * activity to update (create new, or edit) an event
  */
 
 public class CreateEditEventActivity extends AppCompatActivity {
-    public static final String OUTPUT_EVENT = "output_event_updated@CreateEditEvent";
-    public static final String OUTPUT_IS_NEW = "output_is_new@CreateEditEvent";
-    public static final String INPUT_IS_NEW = "input_is_new@CreateEditEvent";
-    public static final String INPUT_EVENT = "input_event_in@CreateEditEvent";
     private static final String BUNDLE_EVENT_STARTING_TO_WORK = "BUNDLE_EVENT_STARTING_TO_WORK@CreateEditEvent";
     private static final String BUNDLE_EVENT_IS_NEW =  "EVENT_IS_NEW@CreateEditEvent";
+
+    @SuppressWarnings("unused")
     private static final String TAG = CreateEditEventActivity.class.getSimpleName();
+    public static final String INPUT_IS_NEW = "INPUT_IS_NEW@CreateEditEventActivity";
 
     ImageView ivPictureAdd;
+    ImageView ivPictureIconAdd;
     View ivClearPicture;
     EditText edtTitle;
     EditText edtBody;
@@ -60,6 +62,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
     TextView tvPublic;
 
     //    int purpleColor;
+    int dividerColor;
     int textSecondaryColor;
     int accentColor;
     Drawable imgVectorPublic, imgVectorPrivate;
@@ -78,13 +81,14 @@ public class CreateEditEventActivity extends AppCompatActivity {
         } else {
             isNewEvent = getIntent().getBooleanExtra(BUNDLE_EVENT_IS_NEW, false);
             if (isNewEvent) {
-                event = (Event) getIntent().getSerializableExtra(INPUT_EVENT);
-            } else {
                 event = Event.createNewHalfFilled();
+            } else {
+                event = (Event) getIntent().getSerializableExtra(IO_EVENT);
             }
         }
         setContentView(R.layout.activity_create_event);
 
+        dividerColor = ContextCompat.getColor(this, R.color.divider);
         textSecondaryColor = ContextCompat.getColor(this, R.color.secondary_text);
         accentColor = ContextCompat.getColor(this, R.color.accent);
 
@@ -113,6 +117,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
             ivPictureAdd.setImageResource(R.drawable.ic_add_a_photo_white_48dp);
 
             ivClearPicture.setVisibility(View.GONE);
+
+            ivPictureIconAdd.setColorFilter(dividerColor);
         });
 
         WorkWithPicture.OnPictureCroppedAndReadyCallback callback = image -> {
@@ -121,6 +127,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
             ivPictureAdd.setImageBitmap(image);
             ivPictureAdd.setPadding(0,0,0,0);
             ivClearPicture.setVisibility(View.VISIBLE);
+            ivPictureIconAdd.setColorFilter(textSecondaryColor);
         };
         pictureWorker = new WorkWithPicture(callback);
         LocalRam.getManager().requestPicture(event.getUniqueId(), (eventId, image) -> {
@@ -204,9 +211,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
             try {
                 if (isNewEvent)
-                    FirebaseDbManager.getManager().uploadNewEvent(event, event.creatorPolicy(), null);
+                    FirebaseDbManager.getManager().uploadNewEvent(event, event.creatorPolicy());
                 else
-                    FirebaseDbManager.getManager().updateExistingEvent(event, null);
+                    FirebaseDbManager.getManager().updateExistingEvent(event);
             }
             catch (FirebaseDbException.NotEventCreator ignored) {}
 
@@ -214,8 +221,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
             pictureWorker.uploadPicturesQuietlyInBg(event.getUniqueId());
 
             Intent backIntent = new Intent();
-            backIntent.putExtra(OUTPUT_EVENT, event);
-            backIntent.putExtra(OUTPUT_IS_NEW, isNewEvent);
+            backIntent.putExtra(IO_EVENT, event);
             setResult(RESULT_OK, backIntent);
 
 
@@ -337,6 +343,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
     private void findViews() {
         ivPictureAdd = (ImageView) findViewById(R.id.iv_create_add_picture);
+        ivPictureIconAdd = (ImageView) findViewById(R.id.iv_create_icon_picture);
         ivClearPicture = findViewById(R.id.iv_create_clear_picture);
         edtTitle = (EditText) findViewById(R.id.edt_create_title);
         edtBody = (EditText) findViewById(R.id.edt_create_body);

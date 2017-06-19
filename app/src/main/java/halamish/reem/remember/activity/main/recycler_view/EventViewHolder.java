@@ -1,13 +1,9 @@
-package halamish.reem.remember.activity.main;
+package halamish.reem.remember.activity.main.recycler_view;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.Calendar;
 
 import halamish.reem.remember.R;
 import halamish.reem.remember.firebase.db.entity.Event;
@@ -20,7 +16,7 @@ import halamish.reem.remember.view.MaterialCircleImageView;
  * "stupid" class. can be controlled
  */
 
-abstract class EventViewHolderNotNow extends EventViewHolder {
+abstract class EventViewHolder extends ViewHolderBaseClass {
     CountDownView cdvDays;
     MaterialCircleImageView civPicture;
     TextView tvTitle;
@@ -28,7 +24,7 @@ abstract class EventViewHolderNotNow extends EventViewHolder {
     ImageView ivIcon;
 
 
-    public EventViewHolderNotNow(View itemView) {
+    EventViewHolder(View itemView) {
         super(itemView);
         cdvDays = (CountDownView) itemView.findViewById(R.id.cdv_item_main_countdown);
         civPicture = (MaterialCircleImageView) itemView.findViewById(R.id.civ_item_main_img);
@@ -37,14 +33,26 @@ abstract class EventViewHolderNotNow extends EventViewHolder {
         vMainItem = itemView;
     }
 
-    abstract void prepareIcon(Context context);
+    @Override
+    void setListenerRow(View.OnClickListener listener) {
+        vMainItem.setOnClickListener(listener);
+    }
 
-    public void initValues(Context context, Event event, Bitmap thumbnail) {
-        prepareIcon(context);
+    @Override
+    void setListenerIcon(View.OnClickListener listener) {
+        ivIcon.setOnClickListener(listener);
+    }
+
+    abstract void prepareIcon();
+
+    @Override
+    void initValues(Event event, Bitmap thumbnail) {
+        prepareIcon();
         cdvDays.setCountdown((int) event.localGetCountDownDays(), (int) event.localGetCountDownHours());
         tvTitle.setText(event.getTitle());
         if (thumbnail != null) {
             civPicture.setImageBitmap(thumbnail);
         }
     }
+
 }

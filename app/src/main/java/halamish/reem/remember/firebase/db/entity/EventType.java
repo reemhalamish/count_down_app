@@ -1,7 +1,5 @@
 package halamish.reem.remember.firebase.db.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Generated;
 import lombok.Getter;
 
 /**
@@ -9,7 +7,7 @@ import lombok.Getter;
  */
 
 public enum EventType {
-    CREATOR(0), SUBSCRIBER(1), HOT_EVENT(2);
+    CREATOR(0), PRIVATE_SUBSCRIBER(1), HOT_EVENT(2);
     @Getter private final int index;
 
     EventType(int arg){index=arg;}
@@ -18,7 +16,7 @@ public enum EventType {
             case 0:
                 return CREATOR;
             case 1:
-                return SUBSCRIBER;
+                return PRIVATE_SUBSCRIBER;
         }
         return HOT_EVENT;
     }

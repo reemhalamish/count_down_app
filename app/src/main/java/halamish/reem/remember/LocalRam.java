@@ -35,7 +35,6 @@ public class LocalRam implements FirebaseStorageManager.OnPictureReadyCallback, 
 
 
 
-
     public interface OnNewThumbnailInserted {
         /**
          *
@@ -198,4 +197,9 @@ public class LocalRam implements FirebaseStorageManager.OnPictureReadyCallback, 
             removeImage(eventId);
         }
     }
+
+    public boolean thumbnailExist(String uniqueId) {
+        return eventIdToThumbnail.get(uniqueId) != null;
+    }
+
 }

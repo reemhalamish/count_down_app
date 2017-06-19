@@ -3,20 +3,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:clipToPadding="false"
 
-    android:elevation="4dp"
     >
 
-    <!--android:paddingTop="4dp"-->
-    <!--android:paddingBottom="4dp"-->
-    <!--android:paddingStart="2dp"-->
-    <!--android:paddingEnd="2dp"-->
-    <!--android:clipToPadding="false"-->
-    <!--&gt;-->
 
-    <!--<android.support.v7.widget.CardView-->
+    <!--<RelativeLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_alignTop="@+id/cv_item_main_row_top"-->
+        <!--android:layout_alignBottom="@+id/cv_item_main_row_top"-->
+        <!--&gt;-->
+
+
+        <!--<View-->
+            <!--android:id="@+id/v_item_main_bg_start"-->
+
+            <!--android:layout_width="150dp"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:background="@color/colorAccent"-->
+            <!--/>-->
+        <!--<View-->
+            <!--android:id="@+id/v_item_main_bg_end"-->
+
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_toEndOf="@+id/v_item_main_bg_start"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:background="@color/primary_half_light"-->
+            <!--/>-->
+        <!--<ImageView-->
+            <!--android:layout_width="40dp"-->
+            <!--android:layout_height="40dp"-->
+            <!--app:srcCompat="@drawable/ic_delete_forever_black_24dp"-->
+            <!--android:tint="@android:color/white"-->
+            <!--android:layout_marginStart="16dp"-->
+            <!--android:layout_centerVertical="true"-->
+
+            <!--/>-->
+
+
+    <!--</RelativeLayout>-->
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_item_main_row_top"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:clipToPadding="false"
+    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--android:paddingTop="4dp"-->
+        <!--android:paddingBottom="4dp"-->
+        <!--android:paddingStart="2dp"-->
+        <!--android:paddingEnd="2dp"-->
+        <!--android:clipToPadding="false"-->
+        <!--&gt;-->
+
+        <!--<android.support.v7.widget.CardView-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="wrap_content">-->
 
@@ -63,21 +114,17 @@
 
         <ImageView
             android:id="@+id/iv_item_main_end_icon"
-            android:layout_width="32dp"
-            android:layout_height="0dp"
-            android:layout_alignTop="@+id/civ_item_main_img"
-            android:layout_alignBottom="@+id/civ_item_main_img"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+
             app:srcCompat="@drawable/ic_edit_black_24dp"
             android:layout_alignParentEnd="true"
             android:layout_margin="8dp"
             android:tint="@color/accent"
             android:scaleType="centerInside"
+            android:background="@drawable/ripple_circle"
             />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/civ_item_main_img"
-        android:background="@color/divider"
-        />
+    </RelativeLayout>
+    </android.support.v7.widget.CardView>
 </RelativeLayout>

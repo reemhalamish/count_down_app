@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CountDown</string>
     <string name="days">days</string>
-    <string name="hours">hours!</string>
+    <string name="hours">hours</string>
     <string name="before">before</string>
     <string name="in">in</string>
     <string name="plus99" translatable="false">99+</string>
@@ -31,5 +31,6 @@
     <string name="tap_the_star_to_subscribe">Tap the star to subscribe for events!</string>
     <string name="no_one_created_public_event">No one created a public event yet :(</string>
     <string name="press_plus_to_add_events">press the + button to add new events!</string>
+    <string name="now">Now</string>
 
 </resources>

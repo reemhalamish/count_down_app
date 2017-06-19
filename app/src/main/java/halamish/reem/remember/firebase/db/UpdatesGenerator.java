@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import halamish.reem.remember.LocalRam;
-import halamish.reem.remember.Util;
 import halamish.reem.remember.firebase.db.entity.Event;
 import halamish.reem.remember.firebase.db.entity.EventNotificationPolicy;
 
@@ -15,7 +14,8 @@ import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_ALERTS
 import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_ALERTS_DAILY;
 import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_EVENTS;
 import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS;
-import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS_UNMAE_EVENTS;
+import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS_UNMAE_HIDDEN;
+import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS_UNMAE_SUBSCRIBED;
 import static halamish.reem.remember.firebase.db.FirebaseDbManager.BRANCH_USERS_UNMAE_PHONES;
 import static halamish.reem.remember.firebase.Helper.toFirebaseBranch;
 
@@ -87,6 +87,20 @@ class UpdatesGenerator {
         return uploads;
     }
 
+    /**
+     * goto beanch /user/[username]/eventHidden and remove [eventId] from there
+     *
+     * @param username
+     * @param eventId
+     * @return
+     */
+    static Map<String, Object> requestHideEventUpload(String username, String eventId) {
+        Map<String, Object> uploads = new HashMap<>();
+        uploads.put(toFirebaseBranch(BRANCH_USERS,username, BRANCH_USERS_UNMAE_HIDDEN, eventId), true);
+        return uploads;
+    }
+
+
 
 
     static Map<String, Object> requestUpdatePolicyUpload(String username,
@@ -124,7 +138,7 @@ class UpdatesGenerator {
      */
     static Map<String, Object> requestUserSubscribeEvent(String username, String eventId, String newPolicy) {
         Map<String, Object> updates = new HashMap<>();
-        updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_EVENTS, eventId), newPolicy);
+        updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_SUBSCRIBED, eventId), newPolicy);
         return updates;
     }
 
@@ -138,14 +152,14 @@ class UpdatesGenerator {
      */
     static Map<String, Object> requestUserUnsubscribeEvent(String username, String eventId) {
         Map<String, Object> updates = new HashMap<>();
-        updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_EVENTS, eventId), null);
+        updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_SUBSCRIBED, eventId), null);
         return updates;
     }
 
     static Map<String, Object> requestUserUnsubscribeDeletedEvents(String username, Collection<String> eventsNoLongerExist) {
         Map<String, Object> updates = new HashMap<>();
         for (String eventId : eventsNoLongerExist) {
-            updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_EVENTS, eventId), null);
+            updates.put(toFirebaseBranch(BRANCH_USERS, username, BRANCH_USERS_UNMAE_SUBSCRIBED, eventId), null);
         }
         return updates;
     }

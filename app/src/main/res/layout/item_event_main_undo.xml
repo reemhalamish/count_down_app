@@ -2,16 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/purple500"
     >
     <TextView
+        android:id="@+id/tv_item_undo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Now"
+        android:text="undo"
         android:padding="16dp"
-        android:gravity="center_vertical|start"
+        android:textAllCaps="true"
+        android:gravity="center_vertical|end"
         android:textSize="@dimen/txt_normal"
-        android:textColor="@android:color/white"
+        android:textColor="@color/primary_text"
         />
 
 </LinearLayout>

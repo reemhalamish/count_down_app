@@ -36,9 +36,16 @@
               /event513 : event513user1ntfcPolicy
               /event376 : event376user1ntfcPolicy
               ...
+          /eventHidden
+              /event124 : true
+              ...
       /{user2phoneUniqueId}
           /eventSubscribed
               /event1 : event1user2ntfcPolicy
+              ...
+          /eventHidden
+              /event124 : true
+              /event139 : true
               ...
           /phones
                /{user2phoneUniqueId} : {user2phoneFirebaseRecognizer}

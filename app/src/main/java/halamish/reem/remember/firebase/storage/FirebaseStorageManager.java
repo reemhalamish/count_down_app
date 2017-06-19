@@ -5,8 +5,10 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 
 import halamish.reem.remember.LocalRam;
@@ -50,6 +52,7 @@ public class FirebaseStorageManager {
         void onFinished(Uri downloadUrl);
     }
 
+    private static class DoNothingOnStorageFinished implements OnStorageFinishedCallback {@Override public void onFinished(Uri downloadUrl) {}}
 
     @Getter private static FirebaseStorageManager manager = new FirebaseStorageManager();
 
@@ -121,4 +124,39 @@ public class FirebaseStorageManager {
     }
 
 
+    public void deleteAllRelated(String eventId) {
+        deleteAllRelated(eventId, new DoNothingOnStorageFinished());
+    }
+
+    /**
+     * removes the picture and the thumbnail
+     * @param eventId
+     * @param callback
+     */
+    public void deleteAllRelated(String eventId, OnStorageFinishedCallback callback) {
+        final boolean[] finishedLowDens = {false};
+        final boolean[] finishedHighRes = {false};
+        storage
+                .getReference()
+                .child(getPathPictureOriginal(eventId))
+                .delete()
+                .addOnCompleteListener(task -> {
+                    finishedHighRes[0] = true;
+                    if (finishedLowDens[0]) {
+                        callback.onFinished(null);
+                    }
+                });
+
+        storage
+                .getReference()
+                .child(getPathPictureOriginal(eventId))
+                .delete()
+                .addOnCompleteListener(task -> {
+                    finishedLowDens[0] = true;
+
+                    if (finishedHighRes[0]) {
+                        callback.onFinished(null);
+                    }
+                });
+    }
 }
